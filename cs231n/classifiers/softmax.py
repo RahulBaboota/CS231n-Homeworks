@@ -30,6 +30,30 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     
+    ## Computing the raw scores or the logits.
+    scores = X.dot(W)
+    
+    ## Computing number of training instances.
+    numTrain = X_train.shape[0]
+
+    ## Initialising the final output matrix from the below loop.
+    softmaxScores = np.zeros_like(scores)
+
+    for i in range(0, numTrain):
+
+        ## Accessing the scores array for each image.
+        imgScoreMat = scores[i]
+
+        ## Finding the maximum class score in above array.
+        maxClsScore = np.max(imgScoreMat)
+
+        ## Normalise the raw scores to avoid exponential score blow-up.
+        ## To do so, subtract the maximum score from each score value for each image.
+        normScoreMat = imgScoreMat - maxClsScore
+
+        ## Exponentiate the normalised class scores.
+        expScoreMat = np.exp(normScoreMat)
+    
     #############################################################################
     #                          END OF YOUR CODE                                 #
     #############################################################################
