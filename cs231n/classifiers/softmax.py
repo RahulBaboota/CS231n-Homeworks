@@ -53,6 +53,15 @@ def softmax_loss_naive(W, X, y, reg):
 
         ## Exponentiate the normalised class scores.
         expScoreMat = np.exp(normScoreMat)
+
+        ## Computing the sum of all the exponentiated scores.
+        expScoresSum = np.sum(expScoreMat, axis = 0, keepdims = True)
+            
+        ## Compute the probabilities (or softmax scores) of each class.
+        imgSoftmaxScores = expScoreMat/expScoresSum
+        
+        ## Updating scores to global array.
+        softmaxScores[i] = imgSoftmaxScores
     
     #############################################################################
     #                          END OF YOUR CODE                                 #
