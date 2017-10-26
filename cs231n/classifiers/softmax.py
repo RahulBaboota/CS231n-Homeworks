@@ -19,6 +19,7 @@ def softmax_loss_naive(W, X, y, reg):
     - loss as single float
     - gradient with respect to weights W; an array of same shape as W
     """
+    
     # Initialize the loss and gradient to zero.
     loss = 0.0
     dW = np.zeros_like(W)
@@ -34,10 +35,7 @@ def softmax_loss_naive(W, X, y, reg):
     scores = X.dot(W)
     
     ## Computing number of training instances.
-    numTrain = X_train.shape[0]
-
-    ## Initialising the final output matrix from the below loop.
-    softmaxScores = np.zeros_like(scores)
+    numTrain = X.shape[0]
 
     for i in range(0, numTrain):
 
@@ -60,8 +58,22 @@ def softmax_loss_naive(W, X, y, reg):
         ## Compute the probabilities (or softmax scores) of each class.
         imgSoftmaxScores = expScoreMat/expScoresSum
         
-        ## Updating scores to global array.
-        softmaxScores[i] = imgSoftmaxScores
+        ## Compute the probabilities (or softmax scores) of each class.
+        imgSoftmaxScores = expScoreMat/expScoresSum
+
+        ## Finding the softmax score for the correct class.
+        corrSoftScore = imgSoftmaxScores[y[i]]
+
+        ## Computing the loss for the particular image and appending to the running loss.
+        loss = loss + -np.log(corrSoftScore/np.sum(imgSoftmaxScores))
+              
+    
+    ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
+    loss = loss/numTrain
+    
+    ## Add regularisation loss.
+    loss = loss + reg * W.dot(W) 
+    
     
     #############################################################################
     #                          END OF YOUR CODE                                 #
@@ -109,6 +121,12 @@ def softmax_loss_vectorized(W, X, y, reg):
     
     ## Extracting the single float value from the 1 element numpy array.
     loss = loss[0]
+    
+    ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
+    loss = loss/numTrain
+    
+    ## Add regularisation loss.
+    loss = loss + reg * W.dot(W) 
     
     return loss, dW
 
