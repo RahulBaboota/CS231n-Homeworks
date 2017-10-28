@@ -66,13 +66,16 @@ def softmax_loss_naive(W, X, y, reg):
 
         ## Computing the loss for the particular image and appending to the running loss.
         loss = loss + -np.log(corrSoftScore/np.sum(imgSoftmaxScores))
+        
+        ## Updating the gradient Matrix.
+        dW[i] = imgSoftmaxScores - y[i]
               
     
     ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
     loss = loss/numTrain
     
     ## Add regularisation loss.
-    loss = loss + reg * W.dot(W) 
+    loss = loss + 0.5 * reg * np.sum(W*W) 
     
     
     #############################################################################
