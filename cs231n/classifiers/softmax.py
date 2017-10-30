@@ -117,7 +117,7 @@ def softmax_loss_vectorized(W, X, y, reg):
     softmaxScores = expScores/np.sum(expScores, axis = 1, keepdims = True)
     
     ## Creating a 1-D matrix containing the softmax score of the correct class.
-    corrSoftScore = np.choose(y_train, softmaxScores.T)
+    corrSoftScore = np.choose(y, softmaxScores.T)
     
     ## Computing the cross-entropy loss.
     loss = -np.sum(np.log(corrSoftScore), axis = 0, keepdims = True)
@@ -129,7 +129,15 @@ def softmax_loss_vectorized(W, X, y, reg):
     loss = loss/numTrain
     
     ## Add regularisation loss.
-    loss = loss + reg * W.dot(W) 
+    loss = loss + 0.5*reg*np.sum(W*W) 
+    
+    ## Computing the gradient with the help of chain rule.
+    dO = softmaxScores - y[:, None]
+    dW = X.T.dot(dO)
+    dW /= numTrain
+    
+    ## Gradient Regularisation.
+    dW = dW + reg*W
     
     return loss, dW
 
