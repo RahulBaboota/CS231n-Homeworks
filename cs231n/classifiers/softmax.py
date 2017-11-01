@@ -131,12 +131,20 @@ def softmax_loss_vectorized(W, X, y, reg):
     ## Add regularisation loss.
     loss = loss + 0.5*reg*np.sum(W*W) 
     
-    ## Computing the gradient with the help of chain rule.
-    softmaxScores[np.arange(numTrain), y] -= 1
-    
-    
+    ## Initialising dO to softmaxScores.
+    dO = softmaxScores
+
+    ## Computing dL/dO.
+    dO[np.arange(numTrain), y] -= 1
+
+    ## Computing dL/dW with the help of chain rule.
+    dW = X.T.dot(dO)
+     
     ## Gradient Regularisation.
     dW = dW + reg*W
+    
+    ## Dividing the gradient by the number of training instances.
+    dW /= numTrain
     
     return loss, dW
 
