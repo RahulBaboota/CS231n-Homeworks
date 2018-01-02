@@ -31,49 +31,62 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     
-    ## Computing the raw scores or the logits.
-    scores = X.dot(W)
-    
     ## Computing number of training instances.
     numTrain = X.shape[0]
 
+    ## Computing the number of classes.
+    numClasses = W.shape[1]
+    
     for i in range(0, numTrain):
 
-        ## Accessing the scores array for each image.
-        imgScoreMat = scores[i]
-
+        ## Computing the raw scores for each image.
+        imgScoreMat = X[i].dot(W)
+        
         ## Finding the maximum class score in above array.
         maxClsScore = np.max(imgScoreMat)
-
+        
         ## Normalise the raw scores to avoid exponential score blow-up.
         ## To do so, subtract the maximum score from each score value for each image.
         normScoreMat = imgScoreMat - maxClsScore
-
+        
         ## Exponentiate the normalised class scores.
         expScoreMat = np.exp(normScoreMat)
-
+        
         ## Computing the sum of all the exponentiated scores.
         expScoresSum = np.sum(expScoreMat, axis = 0, keepdims = True)
             
         ## Compute the probabilities (or softmax scores) of each class.
         imgSoftmaxScores = expScoreMat/expScoresSum
-        
-        ## Compute the probabilities (or softmax scores) of each class.
-        imgSoftmaxScores = expScoreMat/expScoresSum
-
+     
         ## Finding the softmax score for the correct class.
         corrSoftScore = imgSoftmaxScores[y[i]]
-
-        ## Computing the loss for the particular image and appending to the running loss.
+        
+        ## Computing the loss for the particular image.
         loss = loss + -np.log(corrSoftScore/np.sum(imgSoftmaxScores))
         
-        ## Updating the gradient Matrix.
-        dW[i] = imgSoftmaxScores - y[i]
-              
-    
+        ## Updating the gradients wrt the logits.
+        for j in range(0, numClasses):
+
+            if (j == y[i]):
+
+                dOj = imgSoftmaxScores[j] - 1
+
+            else:
+
+                dOj = imgSoftmaxScores[j]
+            
+            ## Updating the gradients wrt the weights.
+            dW[:,j] += dOj * X[i]
+                       
+    ## Gradient Regularisation.
+    dW = dW + reg*W
+
+    ## Dividing the gradient by the number of training instances.
+    dW /= numTrain
+
     ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
     loss = loss/numTrain
-    
+
     ## Add regularisation loss.
     loss = loss + 0.5 * reg * np.sum(W*W) 
     
@@ -129,7 +142,7 @@ def softmax_loss_vectorized(W, X, y, reg):
     loss = loss/numTrain
     
     ## Add regularisation loss.
-    loss = loss + 0.5*reg*np.sum(W*W) 
+    loss = loss + 0.5 * reg * np.sum(W * W) 
     
     ## Initialising dO to softmaxScores.
     dO = softmaxScores
@@ -147,4 +160,3 @@ def softmax_loss_vectorized(W, X, y, reg):
     dW /= numTrain
     
     return loss, dW
-
