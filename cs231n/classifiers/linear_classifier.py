@@ -1,6 +1,6 @@
 import numpy as np
-from cs231n.classifiers.linear_svm import *
 from cs231n.classifiers.softmax import *
+from cs231n.classifiers.linear_svm import *
 
 class LinearClassifier(object):
 
@@ -60,7 +60,7 @@ class LinearClassifier(object):
       #########################################################################
       
       ## Creating an array which randomly selects images.
-      randomIndices = np.random.choice(np.arrange(numTrain), size = batchSize)
+      randomIndices = np.random.choice(np.arange(numTrain), size = batchSize)
       XBatch = X[randomIndices]
       yBatch = y[randomIndices]
 
