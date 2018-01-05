@@ -17,7 +17,7 @@ class TwoLayerNet(object):
   The outputs of the second fully-connected layer are the scores for each class.
   """
 
-  def __init__(self, input_size, hidden_size, output_size, std=1e-4):
+  def __init__(self, inputSize, hiddenSize, outputSize, std = 1e-4):
     """
     Initialize the model. Weights are initialized to small random values and
     biases are initialized to zero. Weights and biases are stored in the
@@ -29,17 +29,17 @@ class TwoLayerNet(object):
     b2: Second layer biases; has shape (C,)
 
     Inputs:
-    - input_size: The dimension D of the input data.
-    - hidden_size: The number of neurons H in the hidden layer.
-    - output_size: The number of classes C.
+    - inputSize: The dimension D of the input data.
+    - hiddenSize: The number of neurons H in the hidden layer.
+    - outputSize: The number of classes C.
     """
     self.params = {}
-    self.params['W1'] = std * np.random.randn(input_size, hidden_size)
-    self.params['b1'] = np.zeros(hidden_size)
-    self.params['W2'] = std * np.random.randn(hidden_size, output_size)
-    self.params['b2'] = np.zeros(output_size)
+    self.params['W1'] = std * np.random.randn(inputSize, hiddenSize)
+    self.params['b1'] = np.zeros(hiddenSize)
+    self.params['W2'] = std * np.random.randn(hiddenSize, outputSize)
+    self.params['b2'] = np.zeros(outputSize)
 
-  def loss(self, X, y=None, reg=0.0):
+  def loss(self, X, y = None, reg = 0.0):
     """
     Compute the loss and gradients for a two layer fully connected neural
     network.
@@ -74,7 +74,19 @@ class TwoLayerNet(object):
     # Store the result in the scores variable, which should be an array of      #
     # shape (N, C).                                                             #
     #############################################################################
-    pass
+    
+    ## Computing the first hidden layer.
+    hiddenLayer1 = X.dot(W1) + b1
+
+    ## Applying Relu to the hidden layer.
+    activatedHiddenLayer1 = np.clip(hiddenLayer1, 0, None)
+
+    ## Computing the second hidden layer.
+    hiddenLayer2 = activatedHiddenLayer1.dot(W2) + b2
+
+    ## Storing this matrix in the scores variable.
+    scores = hiddenLayer2
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
