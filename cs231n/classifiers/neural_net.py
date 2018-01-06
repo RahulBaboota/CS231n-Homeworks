@@ -104,7 +104,30 @@ class TwoLayerNet(object):
     # classifier loss. So that your results match ours, multiply the            #
     # regularization loss by 0.5                                                #
     #############################################################################
-    pass
+    
+    ## Normalise the raw scores to avoid exponential score blow-up.
+    ## To do so, subtract the maximum score from each score value for each image.
+    expScores = np.exp(scores - np.max(scores, axis = 1, keepdims = True))
+
+    ## Compute the probabilities (or softmax scores) of each class.
+    softmaxScores = expScores/np.sum(expScores, axis = 1, keepdims = True)
+
+    ## Creating a 1-D matrix containing the softmax score of the correct class.
+    corrSoftScore = np.choose(y, softmaxScores.T)
+
+    ## Computing the cross-entropy loss.
+    loss = -np.sum(np.log(corrSoftScore), axis = 0, keepdims = True)
+
+    ## Extracting the single float value from the 1 element numpy array.
+    loss = loss[0]
+
+    ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
+    loss = loss/N
+
+    ## Add regularisation loss.
+    loss = loss + 0.5 * reg * np.sum(W1 * W1) + 0.5 * reg * np.sum(W2 * W2)
+
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
