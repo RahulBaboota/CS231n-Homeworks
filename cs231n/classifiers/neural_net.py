@@ -139,7 +139,25 @@ class TwoLayerNet(object):
     # and biases. Store the results in the grads dictionary. For example,       #
     # grads['W1'] should store the gradient on W1, and be a matrix of same size #
     #############################################################################
-    pass
+    
+    dO = softmaxScores
+
+    ## Computing dL/dO (Softmax Gradient).
+    dO[np.arange(N), y] -= 1
+
+    ## Computing dL/dW2.
+    grads['W2']= activatedHiddenLayer1.T.dot(dO) + reg * W2
+
+    ## Computing dL/dActivatedHiddenLayer1.
+    dActivatedHiddenLayer1 = dO.dot(W2.T)
+
+    ## Computing dL/dHiddenLayer1 (Backprop through Relu).
+    dHiddenLayer1 = np.clip(dActivatedHiddenLayer1, 0, None)
+
+    ## Computing dL/dW1.
+    grads['W1'] = X.T.dot(dHiddenLayer1) + reg * W1
+
+
     #############################################################################
     #                              END OF YOUR CODE                             #
     #############################################################################
