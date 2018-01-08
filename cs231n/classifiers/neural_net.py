@@ -144,9 +144,13 @@ class TwoLayerNet(object):
 
     ## Computing dL/dO (Softmax Gradient).
     dO[np.arange(N), y] -= 1
+    dO /= N
+
+    ## Computing dL/db2.
+    grads['b2'] = np.sum(dO, axis = 0)
 
     ## Computing dL/dW2.
-    grads['W2']= activatedHiddenLayer1.T.dot(dO) + reg * W2
+    grads['W2']= activatedHiddenLayer1.T.dot(dO) + reg * W2  
 
     ## Computing dL/dActivatedHiddenLayer1.
     dActivatedHiddenLayer1 = dO.dot(W2.T)
@@ -154,9 +158,12 @@ class TwoLayerNet(object):
     ## Computing dL/dHiddenLayer1 (Backprop through Relu).
     dHiddenLayer1 = np.clip(dActivatedHiddenLayer1, 0, None)
 
+    ## Computing dL/db1.
+    grads['b1'] = np.sum(dHiddenLayer1, axis = 0)   
+
     ## Computing dL/dW1.
     grads['W1'] = X.T.dot(dHiddenLayer1) + reg * W1
-
+    
 
     #############################################################################
     #                              END OF YOUR CODE                             #
