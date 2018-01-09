@@ -156,13 +156,13 @@ class TwoLayerNet(object):
     dActivatedHiddenLayer1 = dO.dot(W2.T)
 
     ## Computing dL/dHiddenLayer1 (Backprop through Relu).
-    dHiddenLayer1 = np.clip(dActivatedHiddenLayer1, 0, None)
+    dActivatedHiddenLayer1[activatedHiddenLayer1 <= 0] = 0
 
     ## Computing dL/db1.
-    grads['b1'] = np.sum(dHiddenLayer1, axis = 0)   
+    grads['b1'] = np.sum(dActivatedHiddenLayer1, axis = 0)
 
     ## Computing dL/dW1.
-    grads['W1'] = X.T.dot(dHiddenLayer1) + reg * W1
+    grads['W1'] = X.T.dot(dActivatedHiddenLayer1) + reg * W1
     
 
     #############################################################################
