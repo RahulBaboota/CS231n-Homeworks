@@ -62,6 +62,7 @@ class TwoLayerNet(object):
     - grads: Dictionary mapping parameter names to gradients of those parameters
       with respect to the loss function; has the same keys as self.params.
     """
+    
     # Unpack variables from the params dictionary
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
@@ -171,10 +172,10 @@ class TwoLayerNet(object):
 
     return loss, grads
 
-  def train(self, X, y, X_val, y_val,
-            learning_rate=1e-3, learning_rate_decay=0.95,
-            reg=1e-5, num_iters=100,
-            batch_size=200, verbose=False):
+  def train(self, X, y, XVal, yVal,
+            learningRate = 1e-3, learningRateDecay = 0.95,
+            reg = 1e-5, numIters = 100,
+            batchSize = 200, verbose = False):
     """
     Train this neural network using stochastic gradient descent.
 
@@ -182,40 +183,45 @@ class TwoLayerNet(object):
     - X: A numpy array of shape (N, D) giving training data.
     - y: A numpy array f shape (N,) giving training labels; y[i] = c means that
       X[i] has label c, where 0 <= c < C.
-    - X_val: A numpy array of shape (N_val, D) giving validation data.
-    - y_val: A numpy array of shape (N_val,) giving validation labels.
-    - learning_rate: Scalar giving learning rate for optimization.
-    - learning_rate_decay: Scalar giving factor used to decay the learning rate
+    - XVal: A numpy array of shape (N_val, D) giving validation data.
+    - yVal: A numpy array of shape (N_val,) giving validation labels.
+    - learningRate: Scalar giving learning rate for optimization.
+    - learningRateDecay: Scalar giving factor used to decay the learning rate
       after each epoch.
     - reg: Scalar giving regularization strength.
-    - num_iters: Number of steps to take when optimizing.
-    - batch_size: Number of training examples to use per step.
+    - numIters: Number of steps to take when optimizing.
+    - batchSize: Number of training examples to use per step.
     - verbose: boolean; if true print progress during optimization.
     """
-    num_train = X.shape[0]
-    iterations_per_epoch = max(num_train / batch_size, 1)
+    numTrain = X.shape[0]
+    iterations_per_epoch = max(numTrain / batchSize, 1)
 
     # Use SGD to optimize the parameters in self.model
-    loss_history = []
-    train_acc_history = []
-    val_acc_history = []
+    lossHistory = []
+    trainAccHistory = []
+    valAccHistory = []
 
-    for it in xrange(num_iters):
-      X_batch = None
-      y_batch = None
+    for it in xrange(numIters):
+
+      XBatch = None
+      yBatch = None
 
       #########################################################################
       # TODO: Create a random minibatch of training data and labels, storing  #
-      # them in X_batch and y_batch respectively.                             #
+      # them in XBatch and yBatch respectively.                             #
       #########################################################################
-      pass
+      ## Creating an array which randomly selects images.
+      randomIndices = np.random.choice(np.arange(numTrain), size = batchSize)
+      XBatch = X[randomIndices]
+      yBatch = y[randomIndices]
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
 
       # Compute loss and gradients using the current minibatch
-      loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
-      loss_history.append(loss)
+      loss, grads = self.loss(XBatch, y = yBatch, reg = reg)
+      lossHistory.append(loss)
 
       #########################################################################
       # TODO: Use the gradients in the grads dictionary to update the         #
@@ -223,29 +229,37 @@ class TwoLayerNet(object):
       # using stochastic gradient descent. You'll need to use the gradients   #
       # stored in the grads dictionary defined above.                         #
       #########################################################################
-      pass
+      
+      ## Updating the weights and biases using stochastic gradient descent.
+
+      self.params['W2'] -= learningRate * grads['W2']
+      self.params['b2'] -= learningRate * grads['b2']
+
+      self.params['W1'] -= learningRate * grads['W1']
+      self.params['b1'] -= learningRate * grads['b1']
+
       #########################################################################
       #                             END OF YOUR CODE                          #
       #########################################################################
 
       if verbose and it % 100 == 0:
-        print 'iteration %d / %d: loss %f' % (it, num_iters, loss)
+        print 'iteration %d / %d: loss %f' % (it, numIters, loss)
 
       # Every epoch, check train and val accuracy and decay learning rate.
       if it % iterations_per_epoch == 0:
         # Check accuracy
-        train_acc = (self.predict(X_batch) == y_batch).mean()
-        val_acc = (self.predict(X_val) == y_val).mean()
+        train_acc = (self.predict(XBatch) == yBatch).mean()
+        val_acc = (self.predict(XVal) == yVal).mean()
         train_acc_history.append(train_acc)
         val_acc_history.append(val_acc)
 
         # Decay learning rate
-        learning_rate *= learning_rate_decay
+        learningRate *= learningRateDecay
 
     return {
-      'loss_history': loss_history,
-      'train_acc_history': train_acc_history,
-      'val_acc_history': val_acc_history,
+      'lossHistory': lossHistory,
+      'trainAccHistory': trainAccHistory,
+      'valAccHistory': valAccHistory,
     }
 
   def predict(self, X):
@@ -259,20 +273,20 @@ class TwoLayerNet(object):
       classify.
 
     Returns:
-    - y_pred: A numpy array of shape (N,) giving predicted labels for each of
-      the elements of X. For all i, y_pred[i] = c means that X[i] is predicted
+    - yPred: A numpy array of shape (N,) giving predicted labels for each of
+      the elements of X. For all i, yPred[i] = c means that X[i] is predicted
       to have class c, where 0 <= c < C.
     """
-    y_pred = None
+    yPred = None
 
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    pass
+    
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
 
-    return y_pred
+    return yPred
 
 
