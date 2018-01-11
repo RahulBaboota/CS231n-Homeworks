@@ -247,11 +247,12 @@ class TwoLayerNet(object):
 
       # Every epoch, check train and val accuracy and decay learning rate.
       if it % iterations_per_epoch == 0:
+
         # Check accuracy
-        train_acc = (self.predict(XBatch) == yBatch).mean()
-        val_acc = (self.predict(XVal) == yVal).mean()
-        train_acc_history.append(train_acc)
-        val_acc_history.append(val_acc)
+        trainAcc = (self.predict(XBatch) == yBatch).mean()
+        valAcc = (self.predict(XVal) == yVal).mean()
+        trainAccHistory.append(trainAcc)
+        valAccHistory.append(valAcc)
 
         # Decay learning rate
         learningRate *= learningRateDecay
@@ -282,7 +283,30 @@ class TwoLayerNet(object):
     ###########################################################################
     # TODO: Implement this function; it should be VERY simple!                #
     ###########################################################################
-    
+
+    # Unpack variables from the params dictionary
+    W1, b1 = self.params['W1'], self.params['b1']
+    W2, b2 = self.params['W2'], self.params['b2']
+    N, D = X.shape
+
+    # Compute the forward pass
+    scores = None
+
+    ## Computing the first hidden layer.
+    hiddenLayer1 = X.dot(W1) + b1
+
+    ## Applying Relu to the hidden layer.
+    activatedHiddenLayer1 = np.clip(hiddenLayer1, 0, None)
+
+    ## Computing the second hidden layer.
+    hiddenLayer2 = activatedHiddenLayer1.dot(W2) + b2
+
+    ## Storing this matrix in the scores variable.
+    scores = hiddenLayer2
+
+    ## Creating a 1-D matrix containing the class prediction.
+    yPred = np.argmax(scores, axis = 1)
+
     ###########################################################################
     #                              END OF YOUR CODE                           #
     ###########################################################################
