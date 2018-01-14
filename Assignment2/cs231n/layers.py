@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def affine_forward(x, w, b):
+def affine_forward(x, W, b):
   """
   Computes the forward pass for an affine (fully-connected) layer.
 
@@ -31,15 +31,18 @@ def affine_forward(x, w, b):
   ## Defining D = d_1 * d_2 * ..... * d_k
   D = np.prod(np.array(x.shape[1:]))
 
+  ## Making a copy of x for performing vectorized operations.
+  xCopy = np.copy(x)
+
   ## Reshaping the input vector to dimensions (N * D).
-  x = x.reshape(numInputs, D)
+  xCopy = xCopy.reshape(numInputs, D)
 
   ## Performing forward pass of fully connected layer.
-  out = x.dot(w) + b
+  out = xCopy.dot(W) + b
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-  cache = (x, w, b)
+  cache = (x, W, b)
   return out, cache
 
 
@@ -58,16 +61,42 @@ def affine_backward(dout, cache):
   - dw: Gradient with respect to w, of shape (D, M)
   - db: Gradient with respect to b, of shape (M,)
   """
-  x, w, b = cache
-  dx, dw, db = None, None, None
+
+  x, W, b = cache
+  dx, dW, db = None, None, None
+
   #############################################################################
   # TODO: Implement the affine backward pass.                                 #
   #############################################################################
-  pass
+
+  ## Defining the number of inputs.
+  numInputs = x.shape[0]
+      
+  ## Defining D = d_1 * d_2 * ..... * d_k
+  D = np.prod(np.array(x.shape[1:]))
+
+  ## Making a copy of x for performing vectorized operations.
+  xCopy = np.copy(x)
+
+  ## Computing the derivative wrt Biases.
+  db = np.sum(dout, axis = 0)
+
+  ## Reshaping the input vector to dimensions (N * D).
+  xCopy = xCopy.reshape(numInputs, D)
+
+  ## Computing the derivative wrt Weights.
+  dW = xCopy.T.dot(dout)
+
+  ## Computing the derivative wrt Input.
+  dx = dout.dot(W.T)
+
+  ## Reshaping dx.
+  dx = dx.reshape(x.shape)
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
-  return dx, dw, db
+  return dx, dW, db
 
 
 def relu_forward(x):
