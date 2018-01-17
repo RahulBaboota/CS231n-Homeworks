@@ -20,17 +20,17 @@ class TwoLayerNet(object):
   self.params that maps parameter names to numpy arrays.
   """
   
-  def __init__(self, input_dim=3*32*32, hidden_dim=100, num_classes=10,
-               weight_scale=1e-3, reg=0.0):
+  def __init__(self, inputDim = 3 * 32 * 32, hiddenDim = 100, numClasses = 10,
+               weightScale = 1e-3, reg = 0.0):
     """
     Initialize a new network.
 
     Inputs:
-    - input_dim: An integer giving the size of the input
-    - hidden_dim: An integer giving the size of the hidden layer
-    - num_classes: An integer giving the number of classes to classify
+    - inputDim: An integer giving the size of the input
+    - hiddenDim: An integer giving the size of the hidden layer
+    - numClasses: An integer giving the number of classes to classify
     - dropout: Scalar between 0 and 1 giving dropout strength.
-    - weight_scale: Scalar giving the standard deviation for random
+    - weightScale: Scalar giving the standard deviation for random
       initialization of the weights.
     - reg: Scalar giving L2 regularization strength.
     """
@@ -40,18 +40,25 @@ class TwoLayerNet(object):
     ############################################################################
     # TODO: Initialize the weights and biases of the two-layer net. Weights    #
     # should be initialized from a Gaussian with standard deviation equal to   #
-    # weight_scale, and biases should be initialized to zero. All weights and  #
+    # weightScale, and biases should be initialized to zero. All weights and  #
     # biases should be stored in the dictionary self.params, with first layer  #
     # weights and biases using the keys 'W1' and 'b1' and second layer weights #
     # and biases using the keys 'W2' and 'b2'.                                 #
     ############################################################################
-    pass
+    
+    ## Initialising parameters.
+    self.params['W1'] = np.random.normal(loc = 0, scale = weightScale, size = (inputDim, hiddenDim))
+    self.params['b1'] = np.zeros(hiddenDim)
+
+    self.params['W2'] = np.random.normal(loc = 0, scale = weightScale, size = (hiddenDim, numClasses))
+    self.params['b2'] = np.zeros(numClasses)
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
 
 
-  def loss(self, X, y=None):
+  def loss(self, X, y = None):
     """
     Compute loss and gradient for a minibatch of data.
 
@@ -75,7 +82,16 @@ class TwoLayerNet(object):
     # TODO: Implement the forward pass for the two-layer net, computing the    #
     # class scores for X and storing them in the scores variable.              #
     ############################################################################
-    pass
+    
+    ## Fully Connected + ReLU layer.
+    hiddenRelu1, hiddenRelu1Cache = affine_relu_forward(X, self.params['W1'], self.params['b1'])
+
+    ## Fully Connected Layer.
+    rawScores, rawScoresCache = affine_forward(hiddenRelu1, self.params['W2'], self.params['b2'])
+
+    ## Storing the scores.
+    scores = rawScores
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -119,21 +135,21 @@ class FullyConnectedNet(object):
   self.params dictionary and will be learned using the Solver class.
   """
 
-  def __init__(self, hidden_dims, input_dim=3*32*32, num_classes=10,
+  def __init__(self, hiddenDims, inputDim=3*32*32, numClasses=10,
                dropout=0, use_batchnorm=False, reg=0.0,
-               weight_scale=1e-2, dtype=np.float32, seed=None):
+               weightScale=1e-2, dtype=np.float32, seed=None):
     """
     Initialize a new FullyConnectedNet.
     
     Inputs:
-    - hidden_dims: A list of integers giving the size of each hidden layer.
-    - input_dim: An integer giving the size of the input.
-    - num_classes: An integer giving the number of classes to classify.
+    - hiddenDims: A list of integers giving the size of each hidden layer.
+    - inputDim: An integer giving the size of the input.
+    - numClasses: An integer giving the number of classes to classify.
     - dropout: Scalar between 0 and 1 giving dropout strength. If dropout=0 then
       the network should not use dropout at all.
     - use_batchnorm: Whether or not the network should use batch normalization.
     - reg: Scalar giving L2 regularization strength.
-    - weight_scale: Scalar giving the standard deviation for random
+    - weightScale: Scalar giving the standard deviation for random
       initialization of the weights.
     - dtype: A numpy datatype object; all computations will be performed using
       this datatype. float32 is faster but less accurate, so you should use
@@ -145,7 +161,7 @@ class FullyConnectedNet(object):
     self.use_batchnorm = use_batchnorm
     self.use_dropout = dropout > 0
     self.reg = reg
-    self.num_layers = 1 + len(hidden_dims)
+    self.num_layers = 1 + len(hiddenDims)
     self.dtype = dtype
     self.params = {}
 
@@ -154,7 +170,7 @@ class FullyConnectedNet(object):
     # the self.params dictionary. Store weights and biases for the first layer #
     # in W1 and b1; for the second layer use W2 and b2, etc. Weights should be #
     # initialized from a normal distribution with standard deviation equal to  #
-    # weight_scale and biases should be initialized to zero.                   #
+    # weightScale and biases should be initialized to zero.                   #
     #                                                                          #
     # When using batch normalization, store scale and shift parameters for the #
     # first layer in gamma1 and beta1; for the second layer use gamma2 and     #
