@@ -111,7 +111,23 @@ class TwoLayerNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+    
+    ## Softmax Layer (Forward + Backward).
+    loss, dscores = softmax_loss(scores, y)
+
+    ## Add regularisation loss.
+    loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1']) + 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2'])
+
+    ## Backprop through the second hidden layer.
+    dHiddenRelu1, grads['W2'], grads['b2'] = affine_backward(dscores, rawScoresCache)
+
+    ## Bacprop through the first hidden layer.
+    dx, grads['W1'], grads['b1'] = affine_relu_backward(dHiddenRelu1, hiddenRelu1Cache)
+
+    ## Adding regularisation to the weight gradients.
+    grads['W1'] = grads['W1'] + self.reg * self.params['W1']
+    grads['W2'] = grads['W2'] + self.reg * self.params['W2']
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
