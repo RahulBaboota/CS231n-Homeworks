@@ -151,9 +151,9 @@ class FullyConnectedNet(object):
   self.params dictionary and will be learned using the Solver class.
   """
 
-  def __init__(self, hiddenDims, inputDim=3*32*32, numClasses=10,
-               dropout=0, use_batchnorm=False, reg=0.0,
-               weightScale=1e-2, dtype=np.float32, seed=None):
+  def __init__(self, hiddenDims, inputDim = 3 * 32 * 32, numClasses = 10,
+               dropout = 0, useBatchnorm = False, reg = 0.0,
+               weightScale = 1e-2, dtype = np.float32, seed = None):
     """
     Initialize a new FullyConnectedNet.
     
@@ -163,7 +163,7 @@ class FullyConnectedNet(object):
     - numClasses: An integer giving the number of classes to classify.
     - dropout: Scalar between 0 and 1 giving dropout strength. If dropout=0 then
       the network should not use dropout at all.
-    - use_batchnorm: Whether or not the network should use batch normalization.
+    - useBatchnorm: Whether or not the network should use batch normalization.
     - reg: Scalar giving L2 regularization strength.
     - weightScale: Scalar giving the standard deviation for random
       initialization of the weights.
@@ -174,7 +174,7 @@ class FullyConnectedNet(object):
       will make the dropout layers deteriminstic so we can gradient check the
       model.
     """
-    self.use_batchnorm = use_batchnorm
+    self.useBatchnorm = useBatchnorm
     self.use_dropout = dropout > 0
     self.reg = reg
     self.num_layers = 1 + len(hiddenDims)
@@ -193,7 +193,13 @@ class FullyConnectedNet(object):
     # beta2, etc. Scale parameters should be initialized to one and shift      #
     # parameters should be initialized to zero.                                #
     ############################################################################
-    pass
+    
+    ## Initialising parameters.
+    for i in range(hiddenDims):
+
+      self.params['W' + str(i + 1)] = np.random.normal(loc = 0, scale = weightScale, size = (inputDim, hiddenDims[i]))
+      self.params['b' + str(i + 1)] = np.zeros(hiddenDims[i])
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
@@ -213,7 +219,7 @@ class FullyConnectedNet(object):
     # of the first batch normalization layer, self.bn_params[1] to the forward
     # pass of the second batch normalization layer, etc.
     self.bn_params = []
-    if self.use_batchnorm:
+    if self.useBatchnorm:
       self.bn_params = [{'mode': 'train'} for i in xrange(self.num_layers - 1)]
     
     # Cast all parameters to the correct datatype
@@ -234,7 +240,7 @@ class FullyConnectedNet(object):
     # behave differently during training and testing.
     if self.dropout_param is not None:
       self.dropout_param['mode'] = mode   
-    if self.use_batchnorm:
+    if self.useBatchnorm:
       for bn_param in self.bn_params:
         bn_param[mode] = mode
 
@@ -251,7 +257,7 @@ class FullyConnectedNet(object):
     # self.bn_params[1] to the forward pass for the second batch normalization #
     # layer, etc.                                                              #
     ############################################################################
-    pass
+    
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
