@@ -195,10 +195,15 @@ class FullyConnectedNet(object):
     ############################################################################
     
     ## Initialising parameters.
-    for i in range(hiddenDims):
+    
+    ## Creating a list to contain the sizes of all the layers.
+    layerSizes = [inputDim] + hiddenDims + [numClasses]
 
-      self.params['W' + str(i + 1)] = np.random.normal(loc = 0, scale = weightScale, size = (inputDim, hiddenDims[i]))
-      self.params['b' + str(i + 1)] = np.zeros(hiddenDims[i])
+    ## Initialising hidden layer parameters.
+    for i in range(len(layerSizes) - 1):
+
+        params['W' + str(i + 1)] = np.random.normal(loc = 0, scale = weightScale, size = (layerSizes[i], layerSizes[i+1]))
+        params['b' + str(i + 1)] = np.zeros(layerSizes[i])
 
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -258,6 +263,14 @@ class FullyConnectedNet(object):
     # layer, etc.                                                              #
     ############################################################################
     
+    ## Performing the forward pass (FC -> Relu)
+    for i in range(len(hiddenDims)):
+
+      x = affine_relu_forward(x, self.params['W' + str(i + 1)], self.params['b' + str(i + 1)] )
+
+    ## Fully Connected on the 
+
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
