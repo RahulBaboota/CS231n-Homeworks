@@ -263,14 +263,19 @@ class FullyConnectedNet(object):
     # layer, etc.                                                              #
     ############################################################################
     
-    ## Performing the forward pass (FC -> Relu)
-    for i in range(len(hiddenDims)):
+    ## Creating a dictionary to store the layer outputs and cache.
+    outputs = {}
+    cache = {}
 
-      x = affine_relu_forward(x, self.params['W' + str(i + 1)], self.params['b' + str(i + 1)] )
-
-    ## Fully Connected on the 
-
-
+    ## Computing outputs and cache of hidden layers.
+    for i in range(0, len(hiddenDims)):
+        
+        outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_relu_forward(X, params['W' + str(i+1)], params['b'+ str(i+1)])
+        X = outputs['hiddenLayer' + str(i+1)]
+        
+    ## Computing outputs and cache of the last fully connected layer.
+    outputs['lastFC'], cache['lastFC'] = affine_forward(X, params['W' + str(i+2)], params['b'+ str(i+2)])
+        
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
