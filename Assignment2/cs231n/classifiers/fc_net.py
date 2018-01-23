@@ -180,6 +180,7 @@ class FullyConnectedNet(object):
     self.num_layers = 1 + len(hiddenDims)
     self.dtype = dtype
     self.params = {}
+    self.hiddenDims = hiddenDims
 
     ############################################################################
     # TODO: Initialize the parameters of the network, storing all values in    #
@@ -202,8 +203,8 @@ class FullyConnectedNet(object):
     ## Initialising hidden layer parameters.
     for i in range(len(layerSizes) - 1):
 
-        params['W' + str(i + 1)] = np.random.normal(loc = 0, scale = weightScale, size = (layerSizes[i], layerSizes[i+1]))
-        params['b' + str(i + 1)] = np.zeros(layerSizes[i])
+        self.params['W' + str(i + 1)] = np.random.normal(loc = 0, scale = weightScale, size = (layerSizes[i], layerSizes[i+1]))
+        self.params['b' + str(i + 1)] = np.zeros(layerSizes[i+1])
 
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -268,13 +269,17 @@ class FullyConnectedNet(object):
     cache = {}
 
     ## Computing outputs and cache of hidden layers.
-    for i in range(0, len(hiddenDims)):
+    for i in range(0, len(self.hiddenDims)):
         
-        outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_relu_forward(X, params['W' + str(i+1)], params['b'+ str(i+1)])
+        outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_relu_forward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)])
         X = outputs['hiddenLayer' + str(i+1)]
         
+        
     ## Computing outputs and cache of the last fully connected layer.
-    outputs['lastFC'], cache['lastFC'] = affine_forward(X, params['W' + str(i+2)], params['b'+ str(i+2)])
+    outputs['lastFC'], cache['lastFC'] = affine_forward(X, self.params['W' + str(i+2)], self.params['b'+ str(i+2)])
+
+    ## Updating scores.
+    scores = outputs['lastFC']
         
     ############################################################################
     #                             END OF YOUR CODE                             #
@@ -298,7 +303,26 @@ class FullyConnectedNet(object):
     # automated tests, make sure that your L2 regularization includes a factor #
     # of 0.5 to simplify the expression for the gradient.                      #
     ############################################################################
-    pass
+
+    ## Computing the loss and the gradient for the softmax layer.
+    loss, dscores = softmax_loss(scores, y)
+
+    ## Adding regularisation to the loss.
+    for j in range(0, len(self.hiddenDims) + 1):
+        
+        loss += 0.5 * self.reg * np.sum(self.params['W' + str(j+1)] * self.params['W' + str(j+1)])
+
+    ## Performing backprop on the last fully connected layer.
+    dLastFC, grads['W' + str(i+2)], grads['b' + str(i+2)] = affine_backward(dscores, cache['lastFC'])
+    grads['W' + str(i+2)] += self.reg * self.params['W' + str(i+2)]
+
+    ## Performing backprop on the hidden layers.
+    for i in range(len(self.hiddenDims), 0, -1):
+        
+        dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dLastFC, cache['hiddenLayer' + str(i)])
+        grads['W' + str(i)] += self.reg * self.params['W' + str(i)]
+        dLastFC = dHiddenRelu
+
     ############################################################################
     #                             END OF YOUR CODE                             #
     ############################################################################
