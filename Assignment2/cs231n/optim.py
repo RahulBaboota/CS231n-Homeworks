@@ -72,7 +72,7 @@ def sgd_momentum(w, dw, config=None):
   ## Updating the weights.
   w += v
 
-  ## Storing the updated weights in next_w.
+  ## Storing the updated parameters in next_w.
   next_w = w
 
   #############################################################################
@@ -108,7 +108,16 @@ def rmsprop(x, dx, config=None):
   # in the next_x variable. Don't forget to update cache value stored in      #  
   # config['cache'].                                                          #
   #############################################################################
-  pass
+  
+  ## Updating the cache.
+  config['cache'] = config['decay_rate'] * config['cache'] + (1 - config['decay_rate']) * dx ** 2
+
+  ## Updating the parameter values.
+  x += -config['learning_rate'] * dx / (np.sqrt(config['cache']) + config['epsilon']) 
+
+  ## Storing the updated parameters in next_x.
+  next_x = x
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
