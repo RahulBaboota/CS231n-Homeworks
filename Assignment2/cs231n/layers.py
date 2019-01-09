@@ -352,7 +352,7 @@ def dropout_forward(x, dropout_param):
     ###########################################################################
 
   cache = (dropout_param, mask)
-  out = out.astype(x.dtype, copy=False)
+  out = out.astype(x.dtype, copy = False)
 
   return out, cache
 
@@ -373,7 +373,10 @@ def dropout_backward(dout, cache):
     ###########################################################################
     # TODO: Implement the training phase backward pass for inverted dropout.  #
     ###########################################################################
-    pass
+    
+    dx = mask * dout
+
+
     ###########################################################################
     #                            END OF YOUR CODE                             #
     ###########################################################################
