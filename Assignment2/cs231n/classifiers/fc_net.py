@@ -272,7 +272,12 @@ class FullyConnectedNet(object):
     for i in range(0, len(self.hiddenDims)):
         
         outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_relu_forward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)])
-        X = outputs['hiddenLayer' + str(i+1)]
+
+        if self.use_dropout:
+            outputs['hiddenLayerDrop' + str(i+1)], cache['hiddenLayerDrop' + str(i+1)] = dropout_forward((outputs['hiddenLayer' + str(i+1)]), self.dropout_param)
+            X = outputs['hiddenLayerDrop' + str(i+1)]    
+        else:
+            X = outputs['hiddenLayer' + str(i+1)]
         
         
     ## Computing outputs and cache of the last fully connected layer.
@@ -319,7 +324,11 @@ class FullyConnectedNet(object):
     ## Performing backprop on the hidden layers.
     for i in range(len(self.hiddenDims), 0, -1):
         
-        dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dLastFC, cache['hiddenLayer' + str(i)])
+        if self.use_dropout:
+            dHiddenDropout = dropout_backward(dLastFC, cache['hiddenLayerDrop' + str(i)])
+            dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dHiddenDropout, cache['hiddenLayer' + str(i)])
+        else:
+            dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dLastFC, cache['hiddenLayer' + str(i)])
         grads['W' + str(i)] += self.reg * self.params['W' + str(i)]
         dLastFC = dHiddenRelu
 
