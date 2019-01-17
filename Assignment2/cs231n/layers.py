@@ -195,10 +195,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
   momentum = bn_param.get('momentum', 0.9)
 
   N, D = x.shape
-  running_mean = bn_param.get('running_mean', np.zeros(D, dtype=x.dtype))
-  running_var = bn_param.get('running_var', np.zeros(D, dtype=x.dtype))
+  running_mean = bn_param.get('running_mean', np.zeros(D, dtype = x.dtype))
+  running_var = bn_param.get('running_var', np.zeros(D, dtype = x.dtype))
 
   out, cache = None, None
+
   if mode == 'train':
     #############################################################################
     # TODO: Implement the training-time forward pass for batch normalization.   #
@@ -214,19 +215,44 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     # storing your result in the running_mean and running_var variables.        #
     #############################################################################
     
-    ## Computing the mean and variance of the input along each dimension (feature).
-    sampleMean = np.mean(x, axis = 0)
-    sampleVariance = np.var(x, axis = 0)
+    ## Computing the forward pass.
+    ## We compute the forward pass as a computational graph so as to easily 
+    ## backpropagate into the network. 
 
-    ## Normalizing the input.
-    out = ((x - sampleMean)/np.sqrt(sampleVariance))
+    ## Computing the forward pass.
+    ## We compute the forward pass as a computational graph so as to easily 
+    ## backpropagate into the network. 
 
-    ## Scaling and Shifting the normalized data.
-    out = (gamma * out + beta)
+    ## Computing the mean of the sample.
+    sampleMean = (1.0/N) * (np.sum(x, axis = 0))
+
+    ## Computing the numerator expression (X - E[X]).
+    numExpression = x - sampleMean
+
+    ## Computing the denominator expression (Standard Deviation of X).
+    interMediate = numExpression ** 2
+    sampleVariance = (1.0/N) * (np.sum(interMediate, axis = 0))
+    stableSD = np.sqrt(sampleVariance + eps)
+
+    ## Inverting the standard deviation.
+    invertedSD = (1.0/stableSD)
+
+    ## Computing the normalised gaussian input.
+    xHat = numExpression * invertedSD
+
+    ## Scaling the normalised gaussian input by gamma.
+    xHatScaled = gamma * xHat
+
+    ## Shifting the normalised gaussian input by beta.
+    xHatShifted = xHatScaled + beta
+    out = xHatShifted
 
     ## Updating the running mean and running variance.
     running_mean = momentum * running_mean + (1 - momentum) * sampleMean
     running_var = momentum * running_var + (1 - momentum) * sampleVariance
+
+    ## Storing important information in cache to be used for backward pass.
+    cache = (out, gamma, beta)
 
     #############################################################################
     #                             END OF YOUR CODE                              #
@@ -244,7 +270,6 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
     ## Scaling and Shifting the normalized data.
     out = (gamma * out + beta)
-
 
     #############################################################################
     #                             END OF YOUR CODE                              #
@@ -277,11 +302,13 @@ def batchnorm_backward(dout, cache):
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
   dx, dgamma, dbeta = None, None, None
+  out, gamma, beta = cache
+
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
-  pass
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
