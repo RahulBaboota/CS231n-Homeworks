@@ -252,7 +252,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     running_var = momentum * running_var + (1 - momentum) * sampleVariance
 
     ## Storing important information in cache to be used for backward pass.
-    cache = (out, gamma, beta)
+    cache = (out, xHatShifted, xHatScaled, xHat, invertedSD, stableSD, sampleVariance, interMediate, numExpression, sampleMean, gamma, beta, eps)
 
     #############################################################################
     #                             END OF YOUR CODE                              #
@@ -284,7 +284,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
   return out, cache
 
 
-def batchnorm_backward(dout, cache):
+def batchnorm_backward(dOut, cache):
   """
   Backward pass for batch normalization.
   
@@ -301,13 +301,54 @@ def batchnorm_backward(dout, cache):
   - dgamma: Gradient with respect to scale parameter gamma, of shape (D,)
   - dbeta: Gradient with respect to shift parameter beta, of shape (D,)
   """
+  N,D = dOut.shape
   dx, dgamma, dbeta = None, None, None
-  out, gamma, beta = cache
+  out, xHatShifted, xHatScaled, xHat, invertedSD, stableSD, sampleVariance, interMediate, numExpression, sampleMean, gamma, beta, eps = cache
 
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
   #############################################################################
+
+  ## Implementing the backward pass.
+
+  ## Computing the gradient with respect to the beta parameter.
+  dbeta = np.sum(dOut, axis = 0)
+
+  ## Computing the gradient with respect to the gamma parameter.
+  dgamma = np.sum(xHat * dOut, axis = 0)
+
+  ## Computing the gradient with respect to xHat.
+  dXhat = (gamma * dOut)
+
+  ## Computing the gradient with respect to inverted standard deviation.
+  dInvertedSD = np.sum( numExpression * dXhat, axis = 0)
+
+  ## Computing the gradient with respect to the numerator expression (P1).
+  dNumExpressionP1 = (invertedSD * dXhat)
+
+  ## Computing the gradient with respect to the standard deviation.
+  dStableSD = ((-1.0) * (invertedSD**2) * dInvertedSD)
+
+  ## Computing the gradient with respect to the sample variance.
+  dSampleVariance = ((0.5) * (1.0 / np.sqrt(sampleVariance + eps)) * dStableSD)
+
+  ## Computing the gradient with respect to the interMediate.
+  dInterMediate = ((1.0 / N) * np.ones((N, D)) * dSampleVariance)
+
+  ## Computing the gradient with respect to the numerator expression (P2).
+  dNumExpressionP2 = ((2.0) * numExpression * dInterMediate)
+
+  ## Combining the gradients to obtain the full gradient with respect to the numerator expression.
+  dNumExpression = dNumExpressionP1  + dNumExpressionP2
+
+  ## Computing the gradient with respect to the sample mean.
+  dSampleMean = (-1) * np.sum(dNumExpression, axis = 0)
+
+  ## Computing the gradient with respect to the input.
+  dXP1 = ((1.0 / N) * np.ones((N, D)) * dSampleMean)
+  dXP2 = dNumExpression
+  dx = dXP1 + dXP2
 
   #############################################################################
   #                             END OF YOUR CODE                              #
