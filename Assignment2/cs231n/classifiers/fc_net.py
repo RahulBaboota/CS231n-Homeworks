@@ -329,6 +329,7 @@ class FullyConnectedNet(object):
             dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dHiddenDropout, cache['hiddenLayer' + str(i)])
         else:
             dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dLastFC, cache['hiddenLayer' + str(i)])
+            
         grads['W' + str(i)] += self.reg * self.params['W' + str(i)]
         dLastFC = dHiddenRelu
 

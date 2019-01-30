@@ -357,7 +357,7 @@ def batchnorm_backward(dOut, cache):
   return dx, dgamma, dbeta
 
 
-def batchnorm_backward_alt(dout, cache):
+def batchnorm_backward_alt(dOut, cache):
   """
   Alternative backward pass for batch normalization.
   
@@ -370,7 +370,10 @@ def batchnorm_backward_alt(dout, cache):
   
   Inputs / outputs: Same as batchnorm_backward
   """
+  N,D = dOut.shape
   dx, dgamma, dbeta = None, None, None
+  out, xHatShifted, xHatScaled, xHat, invertedSD, stableSD, sampleVariance, interMediate, numExpression, sampleMean, gamma, beta, eps = cache
+  
   #############################################################################
   # TODO: Implement the backward pass for batch normalization. Store the      #
   # results in the dx, dgamma, and dbeta variables.                           #
@@ -379,7 +382,20 @@ def batchnorm_backward_alt(dout, cache):
   # should be able to compute gradients with respect to the inputs in a       #
   # single statement; our implementation fits on a single 80-character line.  #
   #############################################################################
-  pass
+  
+
+  ## Computing the gradient with respect to the beta parameter.
+  dbeta = np.sum(dOut, axis = 0)
+
+  ## Computing the gradient with respect to the gamma parameter.
+  dgamma = np.sum(xHat * dOut, axis = 0)
+
+  ## Computing the gradient with respect to xHat.
+  dXhat = (gamma * dOut)
+
+  ## Computing the gradient with respect to the input.
+  dx = (1. / N) * invertedSD * ( (N * dXhat) - (np.sum(dXhat, axis = 0)) - (xHat * np.sum(xHat * dXhat, axis = 0)))
+
   #############################################################################
   #                             END OF YOUR CODE                              #
   #############################################################################
