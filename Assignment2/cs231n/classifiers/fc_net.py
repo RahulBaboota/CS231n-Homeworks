@@ -338,3 +338,40 @@ class FullyConnectedNet(object):
     ############################################################################
 
     return loss, grads
+
+
+## Defining a utility function to encapsulate the Affine Transformation followed by 
+## Batch Normalization follwed by a Relu non-linearity in a single function.
+def affine_batchNorm_reLu_forward(x, w, b, gamma, beta, bn_param):
+
+    ## Performing the Affine Transformation.
+    outPut, fcCache = affine_forward(x, w, b)
+
+    ## Applying the forward pass of Batch Normalization.
+    outPut, batchNormCache = batchnorm_forward(outPut, gamma, beta, bn_param)
+
+    ## Applying the reLu non-linearity.
+    outPut, reLuCache = relu_forward(outPut)
+
+    cache = (fcCache, batchNormCache, reLuCache)
+
+    return outPut, cache
+
+## Defining a utility function to compute the backward pass for the transformations defined
+## in the above function.
+def affine_batchNorm_reLu_backward(dOut, cache):
+
+    ## Unpacking cache.
+    fcCache, batchNormCache, reLuCache = cache
+
+    ## Backprop through the reLu layer.
+    dRelu = relu_backward(dOut, reLuCache)
+
+    ## Backprop through the Batch Normalization layer.
+    dBatchNorm, dGamma, dBeta = batchnorm_backward(dRelu, batchNormCache)
+
+    ## Backprop through the Affine Transformation layer.
+    dAffineBackward, dW, dB = affine_backward(dBatchNorm, fcCache)
+
+    return dAffineBackward, dW, dB, dGamma, dBeta
+
