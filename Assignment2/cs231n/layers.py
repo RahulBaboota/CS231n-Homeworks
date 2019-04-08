@@ -489,7 +489,7 @@ def dropout_backward(dout, cache):
 	return dx
 
 
-def conv_forward_naive(x, w, b, conv_param):
+def conv_forward_naive(x, w, b, convParam):
 	"""
 	A naive implementation of the forward pass for a convolutional layer.
 
@@ -501,7 +501,7 @@ def conv_forward_naive(x, w, b, conv_param):
 	- x: Input data of shape (N, C, H, W)
 	- w: Filter weights of shape (F, C, HH, WW)
 	- b: Biases, of shape (F,)
-	- conv_param: A dictionary with the following keys:
+	- convParam: A dictionary with the following keys:
 		- 'stride': The number of pixels between adjacent receptive fields in the
 			horizontal and vertical directions.
 		- 'pad': The number of pixels that will be used to zero-pad the input.
@@ -520,7 +520,7 @@ def conv_forward_naive(x, w, b, conv_param):
 	#############################################################################
 
 	## Unpacking the convolutional parameters.
-	stride, padWidth = conv_param['stride'], conv_param['pad']
+	stride, padWidth = convParam['stride'], convParam['pad']
 
 	## Padding the input with zeroes.
 	xPadded = np.pad(x, pad_width = ((0, 0), (0, 0), (padWidth, padWidth), (padWidth, padWidth)), mode = 'constant', constant_values = 0)
@@ -550,34 +550,34 @@ def conv_forward_naive(x, w, b, conv_param):
 	## the weight matrices will convolve.
 	for n in range(0, inputSize):
 
-	    for k in range(0, numFilters):
+		for k in range(0, numFilters):
 
-	        for i in range(0, outputHeight):
+			for i in range(0, outputHeight):
 
-	            for j in range(0, outputWidth):
+				for j in range(0, outputWidth):
 
-	                ## Obtaining the input slice.
-	                xImageSlice = xPadded[n, :, i * stride : i * stride + filterHeight, j * stride : j * stride + filterWidth]
-	                
-	                ## Performing the dot product of the weight matrix with the image slice.
-	                outputActivationMap[n, k, i, j] = np.sum(xImageSlice * w[k]) + b[k]
+					## Obtaining the input slice.
+					xImageSlice = xPadded[n, :, i * stride : i * stride + filterHeight, j * stride : j * stride + filterWidth]
+					
+					## Performing the dot product of the weight matrix with the image slice.
+					outputActivationMap[n, k, i, j] = np.sum(xImageSlice * w[k]) + b[k]
 
 	out = outputActivationMap
 
 	#############################################################################
 	#                             END OF YOUR CODE                              #
 	#############################################################################
-	cache = (x, w, b, conv_param)
+	cache = (x, w, b, convParam)
 	return out, cache
 
 
-def conv_backward_naive(dout, cache):
+def conv_backward_naive(dOut, cache):
 	"""
 	A naive implementation of the backward pass for a convolutional layer.
 
 	Inputs:
-	- dout: Upstream derivatives.
-	- cache: A tuple of (x, w, b, conv_param) as in conv_forward_naive
+	- dOut: Upstream derivatives.
+	- cache: A tuple of (x, w, b, convParam) as in conv_forward_naive
 
 	Returns a tuple of:
 	- dx: Gradient with respect to x
@@ -585,14 +585,77 @@ def conv_backward_naive(dout, cache):
 	- db: Gradient with respect to b
 	"""
 	dx, dw, db = None, None, None
+						
 	#############################################################################
 	# TODO: Implement the convolutional backward pass.                          #
 	#############################################################################
-	pass
+	
+	## Unpacking cache.
+	x, w, b, convParam = cache
+
+	## Unpacking the convolutional parameters.
+	stride, padWidth = convParam['stride'], convParam['pad']
+
+	## Padding the input with zeroes.
+	xPadded = np.pad(x, pad_width = ((0, 0), (0, 0), (padWidth, padWidth), (padWidth, padWidth)), mode = 'constant', constant_values = 0)
+	
+	## Defining the input size, depth, height and width.
+	inputSize = x.shape[0]
+	inputDepth = x.shape[1]
+	inputHeight = x.shape[2]
+	inputWidth = x.shape[3]
+
+	## Defining the filter height, width, depth and number of filters.
+	numFilters = w.shape[0]
+	filerDepth = w.shape[1]
+	filterHeight = w.shape[2]
+	filterWidth = w.shape[3]
+
+	## Defining the output size, depth, height and width.
+	outputSize = x.shape[0]
+	outputDepth = numFilters
+	outputHeight = ((inputHeight - filterHeight + 2 * padWidth) / stride + 1)
+	outputWidth = ((inputWidth - filterWidth + 2 * padWidth) / stride + 1)
+
+	## Initializing the output activation map.
+	outputActivationMap = np.empty([outputSize, outputDepth, outputHeight, outputWidth])
+
+	## Create placeholders for the gradients.
+	dW = np.zeros_like(w)
+	dB = np.zeros_like(b)
+	dX = np.zeros_like(x)
+	dXPadded = np.zeros_like(xPadded)
+
+	for n in range(0, inputSize):
+
+		for k in range(0, numFilters):
+			
+			## Computing the gradient with respect to biases.
+			dB[k] += dOut[n, k].sum()
+
+			for i in range(0, outputHeight):
+
+				for j in range(0, outputWidth):
+
+					## Obtaining the relevant slice of the input.
+					xImageSlice = xPadded[n, :, i * stride : i * stride + filterHeight, j * stride : j * stride + filterWidth]
+					
+					## Obtaining the upstream gradient of the corresponding activation map.
+					dOutUpstream = dOut[n, k, i, j]
+					
+					## Computing the gradient with respect to the weights.
+					dW[k] += xImageSlice * dOutUpstream
+					
+					## Computing the gradient with respect to the input.
+					dXPadded[n, :, i * stride : i * stride + filterHeight, j * stride : j * stride + filterWidth] += w[k] * dOutUpstream
+
+	## Extract dX from dXPadded.
+	dX = dXPadded[:, :, padWidth : padWidth + inputHeight, padWidth : padWidth + inputWidth]
+
 	#############################################################################
 	#                             END OF YOUR CODE                              #
 	#############################################################################
-	return dx, dw, db
+	return dX, dW, dB
 
 
 def max_pool_forward_naive(x, pool_param):
