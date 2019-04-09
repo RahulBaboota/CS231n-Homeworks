@@ -549,11 +549,8 @@ def conv_forward_naive(x, w, b, convParam):
 	## Obtaining the necessary input slices over which
 	## the weight matrices will convolve.
 	for n in range(0, inputSize):
-
 		for k in range(0, numFilters):
-
 			for i in range(0, outputHeight):
-
 				for j in range(0, outputWidth):
 
 					## Obtaining the input slice.
@@ -627,14 +624,12 @@ def conv_backward_naive(dOut, cache):
 	dXPadded = np.zeros_like(xPadded)
 
 	for n in range(0, inputSize):
-
 		for k in range(0, numFilters):
 			
 			## Computing the gradient with respect to biases.
 			dB[k] += dOut[n, k].sum()
 
 			for i in range(0, outputHeight):
-
 				for j in range(0, outputWidth):
 
 					## Obtaining the relevant slice of the input.
@@ -658,30 +653,60 @@ def conv_backward_naive(dOut, cache):
 	return dX, dW, dB
 
 
-def max_pool_forward_naive(x, pool_param):
+def max_pool_forward_naive(x, poolParam):
 	"""
 	A naive implementation of the forward pass for a max pooling layer.
 
 	Inputs:
 	- x: Input data, of shape (N, C, H, W)
-	- pool_param: dictionary with the following keys:
-		- 'pool_height': The height of each pooling region
-		- 'pool_width': The width of each pooling region
+	- poolParam: dictionary with the following keys:
+		- 'poolHeight': The height of each pooling region
+		- 'poolWidth': The width of each pooling region
 		- 'stride': The distance between adjacent pooling regions
 
 	Returns a tuple of:
 	- out: Output data
-	- cache: (x, pool_param)
+	- cache: (x, poolParam)
 	"""
 	out = None
 	#############################################################################
 	# TODO: Implement the max pooling forward pass                              #
 	#############################################################################
-	pass
+	## Defining the input size, depth, height and width.
+	inputSize = x.shape[0]
+	inputDepth = x.shape[1]
+	inputHeight = x.shape[2]
+	inputWidth = x.shape[3]
+
+	## Unpacking the pooling parameters.
+	poolWidth, poolHeight, poolStride = poolParam['poolWidth'], poolParam['poolHeight'], poolParam['stride']
+
+	## Defining the output size, depth, height and width.
+	outputSize = x.shape[0]
+	outputDepth = inputDepth
+	outputHeight = ((inputHeight - poolHeight) / poolStride) + 1
+	outputWidth = ((inputWidth - poolWidth) / poolStride) + 1
+
+	## Initializing the output activation map.
+	outputActivationMap = np.empty([outputSize, outputDepth, outputHeight, outputWidth])
+
+	## Performing the pooling operation.
+	for n in range(0, inputSize):
+		for i in range(0, outputHeight):
+			for j in range(0, outputWidth):
+				
+				## Obtaining the relevant slice along the depth.
+				xImageSlice = x[n, :, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth]
+				
+				## Filling in the correct values in the output placeholder along the depth.
+				outputActivationMap[n, :, i, j] = np.amax(xImageSlice, axis = (-1, -2))
+
+	out = outputActivationMap
+				
 	#############################################################################
 	#                             END OF YOUR CODE                              #
 	#############################################################################
-	cache = (x, pool_param)
+	cache = (x, poolParam)
 	return out, cache
 
 
