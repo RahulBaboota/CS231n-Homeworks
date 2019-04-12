@@ -20,6 +20,7 @@ def affine_forward(x, W, b):
 	- cache: (x, w, b)
 	"""
 	out = None
+
 	#############################################################################
 	# TODO: Implement the affine forward pass. Store the result in out. You     #
 	# will need to reshape the input into rows.                                 #
@@ -29,7 +30,7 @@ def affine_forward(x, W, b):
 	numInputs = x.shape[0]
 
 	## Defining D = d_1 * d_2 * ..... * d_k
-	D = np.prod(np.array(x.shape[1:]))
+	D = np.prod(np.array(x.shape[1 : ]))
 
 	## Making a copy of x for performing vectorized operations.
 	xCopy = np.copy(x)
@@ -73,7 +74,7 @@ def affine_backward(dout, cache):
 	numInputs = x.shape[0]
 			
 	## Defining D = d_1 * d_2 * ..... * d_k
-	D = np.prod(np.array(x.shape[1:]))
+	D = np.prod(np.array(x.shape[1 : ]))
 
 	## Making a copy of x for performing vectorized operations.
 	xCopy = np.copy(x)
@@ -710,13 +711,13 @@ def max_pool_forward_naive(x, poolParam):
 	return out, cache
 
 
-def max_pool_backward_naive(dout, cache):
+def max_pool_backward_naive(dOut, cache):
 	"""
 	A naive implementation of the backward pass for a max pooling layer.
 
 	Inputs:
 	- dout: Upstream derivatives
-	- cache: A tuple of (x, pool_param) as in the forward pass.
+	- cache: A tuple of (x, poolParam) as in the forward pass.
 
 	Returns:
 	- dx: Gradient with respect to x
@@ -725,7 +726,43 @@ def max_pool_backward_naive(dout, cache):
 	#############################################################################
 	# TODO: Implement the max pooling backward pass                             #
 	#############################################################################
-	pass
+
+	## Unpacking cache.
+	x, poolParam = cache
+	poolParam = {'poolHeight': 2, 'poolWidth': 2, 'stride': 2}
+
+	## Create a placeholder for holding the gradient.
+	dx = np.zeros_like(x)
+
+	## Defining the input size, depth, height and width.
+	inputSize = x.shape[0]
+	inputDepth = x.shape[1]
+	inputHeight = x.shape[2]
+	inputWidth = x.shape[3]
+
+	## Unpacking the pooling parameters.
+	poolWidth, poolHeight, poolStride = poolParam['poolWidth'], poolParam['poolHeight'], poolParam['stride']
+
+	## Defining the output size, depth, height and width.
+	outputSize = x.shape[0]
+	outputDepth = inputDepth
+	outputHeight = ((inputHeight - poolHeight) / poolStride) + 1
+	outputWidth = ((inputWidth - poolWidth) / poolStride) + 1
+	
+	for n in range(0, inputSize):
+		for k in range(0, outputDepth):
+			for i in range(0, outputHeight):
+				for j in range(0, outputWidth):
+
+					## Obtaining the relevant slice.
+					xImageSlice = x[n, k, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth] 
+					
+					## Obtaining the index of the maximum element in the above slice.
+					maxElemIndex = np.unravel_index(xImageSlice.argmax(), xImageSlice.shape)
+				 
+					## Computing the gradient.
+					dx[n, k, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth][maxElemIndex[0]][maxElemIndex[1]] = 1 * dOut[n, k, i, j]
+
 	#############################################################################
 	#                             END OF YOUR CODE                              #
 	#############################################################################
