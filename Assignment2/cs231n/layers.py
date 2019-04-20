@@ -758,10 +758,10 @@ def max_pool_backward_naive(dOut, cache):
 					xImageSlice = x[n, k, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth] 
 					
 					## Obtaining the index of the maximum element in the above slice.
-					maxElemIndex = np.unravel_index(xImageSlice.argmax(), xImageSlice.shape)
+					maxElemIndex1, maxElemIndex2 = np.unravel_index(xImageSlice.argmax(), xImageSlice.shape)
 				 
 					## Computing the gradient.
-					dx[n, k, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth][maxElemIndex[0]][maxElemIndex[1]] = 1 * dOut[n, k, i, j]
+					dx[n, k, i * poolStride : i * poolStride + poolHeight, j * poolStride : j * poolStride + poolWidth][maxElemIndex1, maxElemIndex2] = dOut[n, k, i, j]
 
 	#############################################################################
 	#                             END OF YOUR CODE                              #

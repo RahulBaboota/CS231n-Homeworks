@@ -121,7 +121,7 @@ class TwoLayerNet(object):
 	## Backprop through the second hidden layer.
 	dHiddenRelu1, grads['W2'], grads['b2'] = affine_backward(dscores, rawScoresCache)
 
-	## Bacprop through the first hidden layer.
+	## Backprop through the first hidden layer.
 	dx, grads['W1'], grads['b1'] = affine_relu_backward(dHiddenRelu1, hiddenRelu1Cache)
 
 	## Adding regularisation to the weight gradients.
@@ -322,8 +322,7 @@ class FullyConnectedNet(object):
 	loss, dscores = softmax_loss(scores, y)
 
 	## Adding regularisation to the loss.
-	for j in range(0, len(self.hiddenDims) + 1):
-		
+	for j in range(0, len(self.hiddenDims) + 1):		
 		loss += 0.5 * self.reg * np.sum(self.params['W' + str(j+1)] * self.params['W' + str(j+1)])
 
 	## Performing backprop on the last fully connected layer.

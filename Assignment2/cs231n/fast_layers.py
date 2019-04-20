@@ -129,7 +129,7 @@ conv_forward_fast = conv_forward_strides
 conv_backward_fast = conv_backward_strides
 
 
-def max_pool_forward_fast(x, pool_param):
+def max_pool_forward_fast(x, poolParam):
   """
   A fast implementation of the forward pass for a max pooling layer.
 
@@ -139,16 +139,16 @@ def max_pool_forward_fast(x, pool_param):
   is not much faster than the naive method.
   """
   N, C, H, W = x.shape
-  pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
-  stride = pool_param['stride']
+  poolHeight, poolWidth = poolParam['poolHeight'], poolParam['poolWidth']
+  stride = poolParam['stride']
 
-  same_size = pool_height == pool_width == stride
-  tiles = H % pool_height == 0 and W % pool_width == 0
+  same_size = poolHeight == poolWidth == stride
+  tiles = H % poolHeight == 0 and W % poolWidth == 0
   if same_size and tiles:
-    out, reshape_cache = max_pool_forward_reshape(x, pool_param)
+    out, reshape_cache = max_pool_forward_reshape(x, poolParam)
     cache = ('reshape', reshape_cache)
   else:
-    out, im2col_cache = max_pool_forward_im2col(x, pool_param)
+    out, im2col_cache = max_pool_forward_im2col(x, poolParam)
     cache = ('im2col', im2col_cache)
   return out, cache
 
@@ -169,7 +169,7 @@ def max_pool_backward_fast(dout, cache):
     raise ValueError('Unrecognized method "%s"' % method)
 
 
-def max_pool_forward_reshape(x, pool_param):
+def max_pool_forward_reshape(x, poolParam):
   """
   A fast implementation of the forward pass for the max pooling layer that uses
   some clever reshaping.
@@ -177,13 +177,13 @@ def max_pool_forward_reshape(x, pool_param):
   This can only be used for square pooling regions that tile the input.
   """
   N, C, H, W = x.shape
-  pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
-  stride = pool_param['stride']
-  assert pool_height == pool_width == stride, 'Invalid pool params'
-  assert H % pool_height == 0
-  assert W % pool_height == 0
-  x_reshaped = x.reshape(N, C, H / pool_height, pool_height,
-                         W / pool_width, pool_width)
+  poolHeight, poolWidth = poolParam['poolHeight'], poolParam['poolWidth']
+  stride = poolParam['stride']
+  assert poolHeight == poolWidth == stride, 'Invalid pool params'
+  assert H % poolHeight == 0
+  assert W % poolHeight == 0
+  x_reshaped = x.reshape(N, C, H / poolHeight, poolHeight,
+                         W / poolWidth, poolWidth)
   out = x_reshaped.max(axis=3).max(axis=4)
 
   cache = (x, x_reshaped, out)
@@ -221,7 +221,7 @@ def max_pool_backward_reshape(dout, cache):
   return dx
 
 
-def max_pool_forward_im2col(x, pool_param):
+def max_pool_forward_im2col(x, poolParam):
   """
   An implementation of the forward pass for max pooling based on im2col.
 
@@ -229,22 +229,22 @@ def max_pool_forward_im2col(x, pool_param):
   possible.
   """
   N, C, H, W = x.shape
-  pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
-  stride = pool_param['stride']
+  poolHeight, poolWidth = poolParam['poolHeight'], poolParam['poolWidth']
+  stride = poolParam['stride']
 
-  assert (H - pool_height) % stride == 0, 'Invalid height'
-  assert (W - pool_width) % stride == 0, 'Invalid width'
+  assert (H - poolHeight) % stride == 0, 'Invalid height'
+  assert (W - poolWidth) % stride == 0, 'Invalid width'
 
-  out_height = (H - pool_height) / stride + 1
-  out_width = (W - pool_width) / stride + 1
+  out_height = (H - poolHeight) / stride + 1
+  out_width = (W - poolWidth) / stride + 1
 
   x_split = x.reshape(N * C, 1, H, W)
-  x_cols = im2col(x_split, pool_height, pool_width, padding=0, stride=stride)
+  x_cols = im2col(x_split, poolHeight, poolWidth, padding=0, stride=stride)
   x_cols_argmax = np.argmax(x_cols, axis=0)
   x_cols_max = x_cols[x_cols_argmax, np.arange(x_cols.shape[1])]
   out = x_cols_max.reshape(out_height, out_width, N, C).transpose(2, 3, 0, 1)
 
-  cache = (x, x_cols, x_cols_argmax, pool_param)
+  cache = (x, x_cols, x_cols_argmax, poolParam)
   return out, cache
 
 
@@ -255,15 +255,15 @@ def max_pool_backward_im2col(dout, cache):
   This isn't much faster than the naive version, so it should be avoided if
   possible.
   """
-  x, x_cols, x_cols_argmax, pool_param = cache
+  x, x_cols, x_cols_argmax, poolParam = cache
   N, C, H, W = x.shape
-  pool_height, pool_width = pool_param['pool_height'], pool_param['pool_width']
-  stride = pool_param['stride']
+  poolHeight, poolWidth = poolParam['poolHeight'], poolParam['poolWidth']
+  stride = poolParam['stride']
 
   dout_reshaped = dout.transpose(2, 3, 0, 1).flatten()
   dx_cols = np.zeros_like(x_cols)
   dx_cols[x_cols_argmax, np.arange(dx_cols.shape[1])] = dout_reshaped
-  dx = col2im_indices(dx_cols, (N * C, 1, H, W), pool_height, pool_width,
+  dx = col2im_indices(dx_cols, (N * C, 1, H, W), poolHeight, poolWidth,
               padding=0, stride=stride)
   dx = dx.reshape(x.shape)
 
