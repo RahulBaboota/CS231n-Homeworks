@@ -30,7 +30,6 @@ class LinearClassifier(object):
     ## Number of training samples and the dimensions of each training sample.
     numTrain, dim = X.shape
 
-
     ## Total number of classes (assume y takes values 0...K-1 where K is number of classes)
     numClasses = np.max(y) + 1 
 
@@ -64,16 +63,15 @@ class LinearClassifier(object):
       XBatch = X[randomIndices]
       yBatch = y[randomIndices]
 
-
       #########################################################################
       #                       END OF YOUR CODE                                #
       #########################################################################
 
-      # evaluate loss and gradient
+      ## Evaluate loss and gradient
       loss, grad = self.loss(XBatch, yBatch, reg)
       lossHistory.append(loss)
 
-      # perform parameter update
+      ## Perform parameter update
       #########################################################################
       # TODO:                                                                 #
       # Update the weights using the gradient and the learning rate.          #
@@ -116,7 +114,6 @@ class LinearClassifier(object):
     ## Finding the prediction made by the classifier.
     yPred = rawScores.argmax(axis = 1)
 
-
     ###########################################################################
     #                           END OF YOUR CODE                              #
     ###########################################################################
@@ -144,12 +141,12 @@ class LinearSVM(LinearClassifier):
   """ A subclass that uses the Multiclass SVM loss function """
 
   def loss(self, XBatch, yBatch, reg):
-    return svm_loss_vectorized(self.W, XBatch, yBatch, reg)
+    return svmLossVectorized(self.W, XBatch, yBatch, reg)
 
 
 class Softmax(LinearClassifier):
   """ A subclass that uses the Softmax + Cross-entropy loss function """
 
   def loss(self, XBatch, yBatch, reg):
-    return softmax_loss_vectorized(self.W, XBatch, yBatch, reg)
+    return softmaxLossVectorized(self.W, XBatch, yBatch, reg)
 
