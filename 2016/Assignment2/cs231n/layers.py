@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def affine_forward(x, W, b):
+def affineForward(x, W, b):
 	"""
 	Computes the forward pass for an affine (fully-connected) layer.
 
@@ -47,7 +47,7 @@ def affine_forward(x, W, b):
 	return out, cache
 
 
-def affine_backward(dout, cache):
+def affineBackward(dout, cache):
 	"""
 	Computes the backward pass for an affine layer.
 
@@ -100,7 +100,7 @@ def affine_backward(dout, cache):
 	return dx, dW, db
 
 
-def relu_forward(x):
+def reluForward(x):
 	"""
 	Computes the forward pass for a layer of rectified linear units (ReLUs).
 
@@ -126,7 +126,7 @@ def relu_forward(x):
 	return out, cache
 
 
-def relu_backward(dout, cache):
+def reluBackward(dout, cache):
 	"""
 	Computes the backward pass for a layer of rectified linear units (ReLUs).
 
@@ -153,7 +153,7 @@ def relu_backward(dout, cache):
 	return dx
 
 
-def batchnorm_forward(x, gamma, beta, bn_param):
+def batchnormForward(x, gamma, beta, bnParam):
 	"""
 	Forward pass for batch normalization.
 	
@@ -166,8 +166,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 	At each timestep we update the running averages for mean and variance using
 	an exponential decay based on the momentum parameter:
 
-	running_mean = momentum * running_mean + (1 - momentum) * sample_mean
-	running_var = momentum * running_var + (1 - momentum) * sample_var
+	runningMean = momentum * runningMean + (1 - momentum) * sampleMean
+	runningVar = momentum * runningVar + (1 - momentum) * sampleVar
 
 	Note that the batch normalization paper suggests a different test-time
 	behavior: they compute sample mean and variance for each feature using a
@@ -180,24 +180,24 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 	- x: Data of shape (N, D)
 	- gamma: Scale parameter of shape (D,)
 	- beta: Shift paremeter of shape (D,)
-	- bn_param: Dictionary with the following keys:
+	- bnParam: Dictionary with the following keys:
 		- mode: 'train' or 'test'; required
 		- eps: Constant for numeric stability
 		- momentum: Constant for running mean / variance.
-		- running_mean: Array of shape (D,) giving running mean of features
-		- running_var Array of shape (D,) giving running variance of features
+		- runningMean: Array of shape (D,) giving running mean of features
+		- runningVar Array of shape (D,) giving running variance of features
 
 	Returns a tuple of:
 	- out: of shape (N, D)
 	- cache: A tuple of values needed in the backward pass
 	"""
-	mode = bn_param['mode']
-	eps = bn_param.get('eps', 1e-5)
-	momentum = bn_param.get('momentum', 0.9)
+	mode = bnParam['mode']
+	eps = bnParam.get('eps', 1e-5)
+	momentum = bnParam.get('momentum', 0.9)
 
 	N, D = x.shape
-	running_mean = bn_param.get('running_mean', np.zeros(D, dtype = x.dtype))
-	running_var = bn_param.get('running_var', np.zeros(D, dtype = x.dtype))
+	runningMean = bnParam.get('runningMean', np.zeros(D, dtype = x.dtype))
+	runningVar = bnParam.get('runningVar', np.zeros(D, dtype = x.dtype))
 
 	out, cache = None, None
 
@@ -213,7 +213,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 		#                                                                           #
 		# You should also use your computed sample mean and variance together with  #
 		# the momentum variable to update the running mean and running variance,    #
-		# storing your result in the running_mean and running_var variables.        #
+		# storing your result in the runningMean and runningVar variables.        #
 		#############################################################################
 		
 		## Computing the forward pass.
@@ -249,8 +249,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 		out = xHatShifted
 
 		## Updating the running mean and running variance.
-		running_mean = momentum * running_mean + (1 - momentum) * sampleMean
-		running_var = momentum * running_var + (1 - momentum) * sampleVariance
+		runningMean = momentum * runningMean + (1 - momentum) * sampleMean
+		runningVar = momentum * runningVar + (1 - momentum) * sampleVariance
 
 		## Storing important information in cache to be used for backward pass.
 		cache = (out, xHatShifted, xHatScaled, xHat, invertedSD, stableSD, sampleVariance, interMediate, numExpression, sampleMean, gamma, beta, eps)
@@ -267,7 +267,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 		#############################################################################
 		
 		## Normalizing the input.
-		out = ((x - running_mean)/np.sqrt(running_var))
+		out = ((x - runningMean)/np.sqrt(runningVar))
 
 		## Scaling and Shifting the normalized data.
 		out = (gamma * out + beta)
@@ -278,14 +278,14 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 	else:
 		raise ValueError('Invalid forward batchnorm mode "%s"' % mode)
 
-	# Store the updated running means back into bn_param
-	bn_param['running_mean'] = running_mean
-	bn_param['running_var'] = running_var
+	# Store the updated running means back into bnParam
+	bnParam['runningMean'] = runningMean
+	bnParam['runningVar'] = runningVar
 
 	return out, cache
 
 
-def batchnorm_backward(dOut, cache):
+def batchnormBackward(dOut, cache):
 	"""
 	Backward pass for batch normalization.
 	
@@ -358,7 +358,7 @@ def batchnorm_backward(dOut, cache):
 	return dx, dgamma, dbeta
 
 
-def batchnorm_backward_alt(dOut, cache):
+def batchnormBackwardAlt(dOut, cache):
 	"""
 	Alternative backward pass for batch normalization.
 	
@@ -404,13 +404,13 @@ def batchnorm_backward_alt(dOut, cache):
 	return dx, dgamma, dbeta
 
 
-def dropout_forward(x, dropout_param):
+def dropoutForward(x, dropoutParam):
 	"""
 	Performs the forward pass for (inverted) dropout.
 
 	Inputs:
 	- x: Input data, of any shape
-	- dropout_param: A dictionary with the following keys:
+	- dropoutParam: A dictionary with the following keys:
 		- p: Dropout parameter. We drop each neuron output with probability p.
 		- mode: 'test' or 'train'. If the mode is train, then perform dropout;
 			if the mode is test, then just return the input.
@@ -420,12 +420,12 @@ def dropout_forward(x, dropout_param):
 
 	Outputs:
 	- out: Array of the same shape as x.
-	- cache: A tuple (dropout_param, mask). In training mode, mask is the dropout
+	- cache: A tuple (dropoutParam, mask). In training mode, mask is the dropout
 		mask that was used to multiply the input; in test mode, mask is None.
 	"""
-	p, mode = dropout_param['p'], dropout_param['mode']
-	if 'seed' in dropout_param:
-		np.random.seed(dropout_param['seed'])
+	p, mode = dropoutParam['p'], dropoutParam['mode']
+	if 'seed' in dropoutParam:
+		np.random.seed(dropoutParam['seed'])
 
 	mask = None
 	out = None
@@ -457,22 +457,22 @@ def dropout_forward(x, dropout_param):
 		#                            END OF YOUR CODE                             #
 		###########################################################################
 
-	cache = (dropout_param, mask)
+	cache = (dropoutParam, mask)
 	out = out.astype(x.dtype, copy = False)
 
 	return out, cache
 
 
-def dropout_backward(dout, cache):
+def dropoutBackward(dout, cache):
 	"""
 	Perform the backward pass for (inverted) dropout.
 
 	Inputs:
 	- dout: Upstream derivatives, of any shape
-	- cache: (dropout_param, mask) from dropout_forward.
+	- cache: (dropoutParam, mask) from dropout_forward.
 	"""
-	dropout_param, mask = cache
-	mode = dropout_param['mode']
+	dropoutParam, mask = cache
+	mode = dropoutParam['mode']
 	
 	dx = None
 	if mode == 'train':
@@ -490,7 +490,7 @@ def dropout_backward(dout, cache):
 	return dx
 
 
-def conv_forward_naive(x, w, b, convParam):
+def convForwardNaive(x, w, b, convParam):
 	"""
 	A naive implementation of the forward pass for a convolutional layer.
 
@@ -569,7 +569,7 @@ def conv_forward_naive(x, w, b, convParam):
 	return out, cache
 
 
-def conv_backward_naive(dOut, cache):
+def convBackwardNaive(dOut, cache):
 	"""
 	A naive implementation of the backward pass for a convolutional layer.
 
@@ -654,7 +654,7 @@ def conv_backward_naive(dOut, cache):
 	return dX, dW, dB
 
 
-def max_pool_forward_naive(x, poolParam):
+def maxPoolForwardNaive(x, poolParam):
 	"""
 	A naive implementation of the forward pass for a max pooling layer.
 
@@ -711,7 +711,7 @@ def max_pool_forward_naive(x, poolParam):
 	return out, cache
 
 
-def max_pool_backward_naive(dOut, cache):
+def maxPoolBackwardNaive(dOut, cache):
 	"""
 	A naive implementation of the backward pass for a max pooling layer.
 
@@ -769,7 +769,7 @@ def max_pool_backward_naive(dOut, cache):
 	return dx
 
 
-def spatial_batchnorm_forward(x, gamma, beta, bn_param):
+def spatialBatchnormForward(x, gamma, beta, bnParam):
 	"""
 	Computes the forward pass for spatial batch normalization.
 	
@@ -777,15 +777,15 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
 	- x: Input data of shape (N, C, H, W)
 	- gamma: Scale parameter, of shape (C,)
 	- beta: Shift parameter, of shape (C,)
-	- bn_param: Dictionary with the following keys:
+	- bnParam: Dictionary with the following keys:
 		- mode: 'train' or 'test'; required
 		- eps: Constant for numeric stability
 		- momentum: Constant for running mean / variance. momentum=0 means that
 			old information is discarded completely at every time step, while
 			momentum=1 means that new information is never incorporated. The
 			default of momentum=0.9 should work well in most situations.
-		- running_mean: Array of shape (D,) giving running mean of features
-		- running_var Array of shape (D,) giving running variance of features
+		- runningMean: Array of shape (D,) giving running mean of features
+		- runningVar Array of shape (D,) giving running variance of features
 		
 	Returns a tuple of:
 	- out: Output data, of shape (N, C, H, W)
@@ -803,7 +803,7 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
 
 	N, C, H, W = x.shape
 	xReshaped = x.transpose(0, 2, 3, 1).reshape(N * H * W, C)
-	out_tmp, cache = batchnorm_forward(xReshaped, gamma, beta, bn_param)
+	out_tmp, cache = batchnorm_forward(xReshaped, gamma, beta, bnParam)
 	out = out_tmp.reshape(N, H, W, C).transpose(0, 3, 1, 2)
 
 	#############################################################################
@@ -813,7 +813,7 @@ def spatial_batchnorm_forward(x, gamma, beta, bn_param):
 	return out, cache
 
 
-def spatial_batchnorm_backward(dout, cache):
+def spatialBatchnormBackward(dout, cache):
 	"""
 	Computes the backward pass for spatial batch normalization.
 	
@@ -848,7 +848,7 @@ def spatial_batchnorm_backward(dout, cache):
 	return dx, dgamma, dbeta
 	
 
-def svm_loss(x, y):
+def svmLoss(x, y):
 	"""
 	Computes the loss and gradient using for multiclass SVM classification.
 
@@ -863,19 +863,19 @@ def svm_loss(x, y):
 	- dx: Gradient of the loss with respect to x
 	"""
 	N = x.shape[0]
-	correct_class_scores = x[np.arange(N), y]
-	margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1.0)
+	correctClassScores = x[np.arange(N), y]
+	margins = np.maximum(0, x - correctClassScores[:, np.newaxis] + 1.0)
 	margins[np.arange(N), y] = 0
 	loss = np.sum(margins) / N
-	num_pos = np.sum(margins > 0, axis=1)
+	numPos = np.sum(margins > 0, axis = 1)
 	dx = np.zeros_like(x)
 	dx[margins > 0] = 1
-	dx[np.arange(N), y] -= num_pos
+	dx[np.arange(N), y] -= numPos
 	dx /= N
 	return loss, dx
 
 
-def softmax_loss(x, y):
+def softmaxLoss(x, y):
 	"""
 	Computes the loss and gradient for softmax classification.
 
@@ -889,8 +889,8 @@ def softmax_loss(x, y):
 	- loss: Scalar giving the loss
 	- dx: Gradient of the loss with respect to x
 	"""
-	probs = np.exp(x - np.max(x, axis=1, keepdims=True))
-	probs /= np.sum(probs, axis=1, keepdims=True)
+	probs = np.exp(x - np.max(x, axis = 1, keepdims = True))
+	probs /= np.sum(probs, axis = 1, keepdims = True)
 	N = x.shape[0]
 	loss = -np.sum(np.log(probs[np.arange(N), y])) / N
 	dx = probs.copy()

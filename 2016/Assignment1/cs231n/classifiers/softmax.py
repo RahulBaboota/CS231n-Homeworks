@@ -1,7 +1,7 @@
 import numpy as np
 from random import shuffle
 
-def softmax_loss_naive(W, X, y, reg):
+def softmaxLossNaive(W, X, y, reg):
     """
     Softmax loss function, naive implementation (with loops)
 
@@ -20,7 +20,7 @@ def softmax_loss_naive(W, X, y, reg):
     - gradient with respect to weights W; an array of same shape as W
     """
     
-    # Initialize the loss and gradient to zero.
+    ## Initialize the loss and gradient to zero.
     loss = 0.0
     dW = np.zeros_like(W)
 
@@ -78,18 +78,17 @@ def softmax_loss_naive(W, X, y, reg):
             ## Updating the gradients wrt the weights.
             dW[:,j] += dOj * X[i]
                        
-    ## Gradient Regularisation.
-    dW = dW + reg*W
-
     ## Dividing the gradient by the number of training instances.
     dW /= numTrain
+
+    ## Gradient Regularisation.
+    dW = dW + reg*W
 
     ## Compute the full training loss by dividing the cummulative loss by the number of training instances.
     loss = loss/numTrain
 
     ## Add regularisation loss.
     loss = loss + 0.5 * reg * np.sum(W*W) 
-    
     
     #############################################################################
     #                          END OF YOUR CODE                                 #
@@ -98,14 +97,14 @@ def softmax_loss_naive(W, X, y, reg):
     return loss, dW
 
 
-def softmax_loss_vectorized(W, X, y, reg):
+def softmaxLossVectorized(W, X, y, reg):
     """
     Softmax loss function, vectorized version.
 
     Inputs and outputs are the same as softmax_loss_naive.
     """
     
-    # Initialize the loss and gradient to zero.
+    ## Initialize the loss and gradient to zero.
     loss = 0.0
     dW = np.zeros_like(W)
 
@@ -152,11 +151,11 @@ def softmax_loss_vectorized(W, X, y, reg):
 
     ## Computing dL/dW with the help of chain rule.
     dW = X.T.dot(dO)
-     
-    ## Gradient Regularisation.
-    dW = dW + reg*W
     
     ## Dividing the gradient by the number of training instances.
     dW /= numTrain
+
+    ## Gradient Regularisation.
+    dW = dW + reg*W
     
     return loss, dW

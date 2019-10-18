@@ -84,10 +84,10 @@ class TwoLayerNet(object):
 	############################################################################
 	
 	## Fully Connected + ReLU layer.
-	hiddenRelu1, hiddenRelu1Cache = affine_relu_forward(X, self.params['W1'], self.params['b1'])
+	hiddenRelu1, hiddenRelu1Cache = affineReluForward(X, self.params['W1'], self.params['b1'])
 
 	## Fully Connected Layer.
-	rawScores, rawScoresCache = affine_forward(hiddenRelu1, self.params['W2'], self.params['b2'])
+	rawScores, rawScoresCache = affineForward(hiddenRelu1, self.params['W2'], self.params['b2'])
 
 	## Storing the scores.
 	scores = rawScores
@@ -113,16 +113,16 @@ class TwoLayerNet(object):
 	############################################################################
 	
 	## Softmax Layer (Forward + Backward).
-	loss, dscores = softmax_loss(scores, y)
+	loss, dscores = softmaxLoss(scores, y)
 
 	## Add regularisation loss.
 	loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1']) + 0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2'])
 
 	## Backprop through the second hidden layer.
-	dHiddenRelu1, grads['W2'], grads['b2'] = affine_backward(dscores, rawScoresCache)
+	dHiddenRelu1, grads['W2'], grads['b2'] = affineBackward(dscores, rawScoresCache)
 
 	## Backprop through the first hidden layer.
-	dx, grads['W1'], grads['b1'] = affine_relu_backward(dHiddenRelu1, hiddenRelu1Cache)
+	dx, grads['W1'], grads['b1'] = affineReluBackward(dHiddenRelu1, hiddenRelu1Cache)
 
 	## Adding regularisation to the weight gradients.
 	grads['W1'] = grads['W1'] + self.reg * self.params['W1']
@@ -278,19 +278,19 @@ class FullyConnectedNet(object):
 		
 		## If Batch Normalization is to be activated.
 		if self.useBatchnorm:
-			outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_batchNorm_reLu_forward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)], self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)], self.bn_params[i])
+			outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affineBatchNormReLuForward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)], self.params['gamma' + str(i+1)], self.params['beta' + str(i+1)], self.bn_params[i])
 		else:
-			outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affine_relu_forward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)])
+			outputs['hiddenLayer' + str(i+1)], cache['hiddenLayer' + str(i+1)] = affineReluForward(X, self.params['W' + str(i+1)], self.params['b'+ str(i+1)])
 
 		if self.use_dropout:
-			outputs['hiddenLayerDrop' + str(i+1)], cache['hiddenLayerDrop' + str(i+1)] = dropout_forward((outputs['hiddenLayer' + str(i+1)]), self.dropout_param)
+			outputs['hiddenLayerDrop' + str(i+1)], cache['hiddenLayerDrop' + str(i+1)] = dropoutForward((outputs['hiddenLayer' + str(i+1)]), self.dropout_param)
 			X = outputs['hiddenLayerDrop' + str(i+1)]    
 		else:
 			X = outputs['hiddenLayer' + str(i+1)]
 		
 		
 	## Computing outputs and cache of the last fully connected layer.
-	outputs['lastFC'], cache['lastFC'] = affine_forward(X, self.params['W' + str(i+2)], self.params['b'+ str(i+2)])
+	outputs['lastFC'], cache['lastFC'] = affineForward(X, self.params['W' + str(i+2)], self.params['b'+ str(i+2)])
 
 	## Updating scores.
 	scores = outputs['lastFC']
@@ -319,28 +319,28 @@ class FullyConnectedNet(object):
 	############################################################################
 
 	## Computing the loss and the gradient for the softmax layer.
-	loss, dscores = softmax_loss(scores, y)
+	loss, dscores = softmaxLoss(scores, y)
 
 	## Adding regularisation to the loss.
 	for j in range(0, len(self.hiddenDims) + 1):		
 		loss += 0.5 * self.reg * np.sum(self.params['W' + str(j+1)] * self.params['W' + str(j+1)])
 
 	## Performing backprop on the last fully connected layer.
-	dLastFC, grads['W' + str(i+2)], grads['b' + str(i+2)] = affine_backward(dscores, cache['lastFC'])
+	dLastFC, grads['W' + str(i+2)], grads['b' + str(i+2)] = affineBackward(dscores, cache['lastFC'])
 	grads['W' + str(i+2)] += self.reg * self.params['W' + str(i+2)]
 
 	## Performing backprop on the hidden layers.
 	for i in range(len(self.hiddenDims), 0, -1):
 		
 		if self.use_dropout:
-			dHiddenDropout = dropout_backward(dLastFC, cache['hiddenLayerDrop' + str(i)])
-			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dHiddenDropout, cache['hiddenLayer' + str(i)])
+			dHiddenDropout = dropoutBackward(dLastFC, cache['hiddenLayerDrop' + str(i)])
+			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affineReluBackward(dHiddenDropout, cache['hiddenLayer' + str(i)])
 
 		if self.useBatchnorm:
-			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)], grads['gamma' + str(i)], grads['beta' + str(i)] = affine_batchNorm_reLu_backward(dLastFC, cache['hiddenLayer' + str(i)])
+			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)], grads['gamma' + str(i)], grads['beta' + str(i)] = affineBatchNormReLuBackward(dLastFC, cache['hiddenLayer' + str(i)])
 
 		else:
-			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affine_relu_backward(dLastFC, cache['hiddenLayer' + str(i)])
+			dHiddenRelu, grads['W' + str(i)], grads['b' + str(i)] = affineReluBackward(dLastFC, cache['hiddenLayer' + str(i)])
 			
 		grads['W' + str(i)] += self.reg * self.params['W' + str(i)]
 		dLastFC = dHiddenRelu
@@ -354,16 +354,16 @@ class FullyConnectedNet(object):
 
 ## Defining a utility function to encapsulate the Affine Transformation followed by 
 ## Batch Normalization follwed by a Relu non-linearity in a single function.
-def affine_batchNorm_reLu_forward(x, w, b, gamma, beta, bn_param):
+def affineBatchNormReLuForward(x, w, b, gamma, beta, bn_param):
 
 	## Performing the Affine Transformation.
-	outPut, fcCache = affine_forward(x, w, b)
+	outPut, fcCache = affineForward(x, w, b)
 
 	## Applying the forward pass of Batch Normalization.
-	outPut, batchNormCache = batchnorm_forward(outPut, gamma, beta, bn_param)
+	outPut, batchNormCache = batchnormForward(outPut, gamma, beta, bn_param)
 
 	## Applying the reLu non-linearity.
-	outPut, reLuCache = relu_forward(outPut)
+	outPut, reLuCache = reluForward(outPut)
 
 	cache = (fcCache, batchNormCache, reLuCache)
 
@@ -371,7 +371,7 @@ def affine_batchNorm_reLu_forward(x, w, b, gamma, beta, bn_param):
 
 ## Defining a utility function to compute the backward pass for the transformations defined
 ## in the above function.
-def affine_batchNorm_reLu_backward(dOut, cache):
+def affineBatchNormReLuBackward(dOut, cache):
 
 	## Unpacking cache.
 	fcCache, batchNormCache, reLuCache = cache

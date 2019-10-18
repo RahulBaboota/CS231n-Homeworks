@@ -98,6 +98,7 @@ class TwoLayerNet(object):
 
     # Compute the loss
     loss = None
+
     #############################################################################
     # TODO: Finish the forward pass, and compute the loss. This should include  #
     # both the data loss and L2 regularization for W1 and W2. Store the result  #
@@ -207,8 +208,8 @@ class TwoLayerNet(object):
       yBatch = None
 
       #########################################################################
-      # TODO: Create a random minibatch of training data and labels, storing  #
-      # them in XBatch and yBatch respectively.                             #
+      ## TODO: Create a random minibatch of training data and labels, storing  #
+      ## them in XBatch and yBatch respectively.                             #
       #########################################################################
       ## Creating an array which randomly selects images.
       randomIndices = np.random.choice(np.arange(numTrain), size = batchSize)
@@ -219,7 +220,7 @@ class TwoLayerNet(object):
       #                             END OF YOUR CODE                          #
       #########################################################################
 
-      # Compute loss and gradients using the current minibatch
+      ## Compute loss and gradients using the current minibatch.
       loss, grads = self.loss(XBatch, y = yBatch, reg = reg)
       lossHistory.append(loss)
 
@@ -245,16 +246,16 @@ class TwoLayerNet(object):
       if verbose and it % 100 == 0:
         print 'iteration %d / %d: loss %f' % (it, numIters, loss)
 
-      # Every epoch, check train and val accuracy and decay learning rate.
+      ## Every epoch, check train and val accuracy and decay learning rate.
       if it % iterations_per_epoch == 0:
 
-        # Check accuracy
+        ## Check accuracy
         trainAcc = (self.predict(XBatch) == yBatch).mean()
         valAcc = (self.predict(XVal) == yVal).mean()
         trainAccHistory.append(trainAcc)
         valAccHistory.append(valAcc)
 
-        # Decay learning rate
+        ## Decay learning rate
         learningRate *= learningRateDecay
 
     return {
@@ -278,18 +279,19 @@ class TwoLayerNet(object):
       the elements of X. For all i, yPred[i] = c means that X[i] is predicted
       to have class c, where 0 <= c < C.
     """
+
     yPred = None
 
     ###########################################################################
-    # TODO: Implement this function; it should be VERY simple!                #
+    ## TODO: Implement this function; it should be VERY simple!               #
     ###########################################################################
 
-    # Unpack variables from the params dictionary
+    # Unpack variables from the params dictionary.
     W1, b1 = self.params['W1'], self.params['b1']
     W2, b2 = self.params['W2'], self.params['b2']
     N, D = X.shape
 
-    # Compute the forward pass
+    ## Compute the forward pass.
     scores = None
 
     ## Computing the first hidden layer.

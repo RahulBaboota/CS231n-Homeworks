@@ -7,11 +7,9 @@ class Solver(object):
   A Solver encapsulates all the logic necessary for training classification
   models. The Solver performs stochastic gradient descent using different
   update rules defined in optim.py.
-
   The solver accepts both training and validataion data and labels so it can
   periodically check classification accuracy on both training and validation
   data to watch out for overfitting.
-
   To train a model, you will first construct a Solver instance, passing the
   model, dataset, and various optoins (learning rate, batch size, etc) to the
   constructor. You will then call the train() method to run the optimization
@@ -42,27 +40,20 @@ class Solver(object):
                   num_epochs=10, batch_size=100,
                   print_every=100)
   solver.train()
-
-
   A Solver works on a model object that must conform to the following API:
-
   - model.params must be a dictionary mapping string parameter names to numpy
     arrays containing parameter values.
-
   - model.loss(X, y) must be a function that computes training-time loss and
     gradients, and test-time classification scores, with the following inputs
     and outputs:
-
     Inputs:
     - X: Array giving a minibatch of input data of shape (N, d_1, ..., d_k)
     - y: Array of labels, of shape (N,) giving labels for X where y[i] is the
       label for X[i].
-
     Returns:
     If y is None, run a test-time forward pass and return:
     - scores: Array of shape (N, C) giving classification scores for X where
       scores[i, c] gives the score of class c for X[i].
-
     If y is not None, run a training time forward and backward pass and return
     a tuple of:
     - loss: Scalar giving the loss
@@ -262,4 +253,3 @@ class Solver(object):
 
     # At the end of training swap the best params into the model
     self.model.params = self.best_params
-

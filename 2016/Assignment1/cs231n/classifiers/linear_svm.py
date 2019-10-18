@@ -20,7 +20,7 @@ def svmLossNaive(W, X, y, reg):
 	- gradient with respect to weights W; an array of same shape as W
 	"""
 
-	## initialize the gradient as zero.
+	## Initialize the gradient as zero.
 	dW = np.zeros(W.shape) 
 
 	## Computing the number of classes.
@@ -104,7 +104,7 @@ def svmLossVectorized(W, X, y, reg):
 	## Computing the minibatch size.
 	numTrain = X.shape[0]
 
-	## Computing the raw scores for each image.
+	## Computing the raw scores for the images.
 	scores = X.dot(W)
 
 	## Creating an indexing mask.
